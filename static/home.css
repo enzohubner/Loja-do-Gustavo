@@ -12,7 +12,7 @@ body {
 }
 
 .left-side {
-    background-color: #222;
+    background-color: #020E28;
     color: #fff;
     padding: 20px;
     width: 50%;
@@ -29,12 +29,13 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
+    padding-left: 200px;
+    align-items: left;
 }
 
 .logo {
-    width: 150px;
-    height: 150px;
+    width: 500px;
+    height: 500px;
     margin-bottom: 20px;
 }
 
@@ -52,7 +53,7 @@ body {
 .form-group {
     margin-bottom: 20px;
     width: 100%;
-    max-width: 350px;
+    max-width: 500px;
 }
 
 label {
@@ -63,9 +64,9 @@ label {
 
 input[type="text"],
 input[type="email"],
-input[type="password"] {
+input[type="password"]{
     width: 100%;
-    padding: 10px;
+    padding: 20px;
     border: 1px solid #ccc;
     border-radius: 5px;
 }
@@ -81,4 +82,28 @@ input[type="submit"] {
 
 input[type="submit"]:hover {
     background-color: #333;
+}
+
+.btn {
+    background-color: #ffffff;
+    color: #000000;
+    padding: 15px 70px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    width: 100%;
+
+}
+
+.login-btn{
+    width: 220px;
+    align-items: left;
+}
+
+.welcome-text{
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    text-align: center;
 }

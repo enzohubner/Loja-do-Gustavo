@@ -10,29 +10,53 @@
 <body>
   <div class="container">
     <div class="left-side">
+
       <div class="logo">
-        <img src="logo.png" alt="Logo BigustaCakes">
+        <img src="static/png-logo.png" alt="Logo BigustaCakes">
       </div>
-      <h1 class="title">Cadastro</h1>
+
+      <div class="welcome-text">
+        <h1>Bem vindo de Volta</h1>
+        <p class="welcome-p-text">Se você já tem uma conta, faça login para continuar</p>
+      </div>
+
+      <div class="login-btn">
+        <a href="login.html" class="btn">Login</a>
+      </div>
+
     </div>
     <div class="right-side">
       <form method="post">
         <div class="form-group">
           <label for="nome">Nome:</label>
-          <input type="text" id="nome" name="nome">
+          <input type="text" id="nome" name="nome" placeholder="Nome">
         </div>
+
+        <div class="form-group">
+          <label for="escola">escola:</label>
+          <input type="text" id="escola" name="escola" placeholder="Escola(Opcional)">
+        </div>
+
         <div class="form-group">
           <label for="email">E-mail:</label>
-          <input type="email" id="email" name="email">
+          <input type="email" id="email" name="email" placeholder="E-mail">
         </div>
+
+        <div class="form-group">
+          <label for="telefone">Telefone:</label>
+          <input type="text" id="telefone" name="telefone" placeholder="Telefone">
+        </div>
+
         <div class="form-group">
           <label for="senha">Senha:</label>
-          <input type="password" id="senha" name="senha">
+          <input type="password" id="senha" name="senha" placeholder="Senha">
         </div>
+
         <div class="form-group">
           <label for="confirmacao">Confirmar Senha:</label>
-          <input type="password" id="confirmacao" name="confirmacao">
+          <input type="password" id="confirmacao" name="confirmacao" placeholder="Confirme a senha">
         </div>
+
         <input type="submit" value="Cadastrar">
       </form>
     </div>

@@ -15,7 +15,7 @@ body {
     background-color: #8B4513;
     color: #fff;
     padding: 20px;
-    width: 50%;
+    width: 10%;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -24,13 +24,13 @@ body {
 
 .right-side {
     background-color: rgb(240,230,140,0.3);
-    padding: 20px;
-    width: 50%;
+    padding-right: 250px;
+    width: 90%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     padding-left: 200px;
-    align-items: left;
+    align-items: center;
 }
 
 .logo {
@@ -72,7 +72,7 @@ input[type="password"]{
 }
 
 input[type="submit"] {
-    background-color: #222;
+    background-color: #8B4513;
     color: #fff;
     padding: 10px 20px;
     border: none;

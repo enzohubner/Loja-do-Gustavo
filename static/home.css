@@ -3,19 +3,32 @@ body {
     margin: 0;
     display: flex;
     background-color: #f5f5f5;
+    flex-direction: column;
+}
+
+html, body {
+    height: 100%;
+}
+
+.container-fluid {
+    max-width: 100%;
+    height: 100%;
+    padding: 0;
 }
 
 .container {
     display: flex;
+    flex-wrap: wrap;    
     width: 100%;
-    height: 100vh;
+    max-width: 1200px;
+    height: 100%;
 }
 
 .left-side {
     background-color: #8B4513;
     color: #fff;
     padding: 20px;
-    width: 50%;
+    width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -23,19 +36,27 @@ body {
 }
 
 .right-side {
-    background-color: rgb(240,230,140,0.3);
+    background-color: rgba(240, 230, 140, 0.3);
     padding: 20px;
-    width: 50%;
     display: flex;
+    width: 100%;
     flex-direction: column;
     justify-content: center;
-    padding-left: 200px;
-    align-items: left;
+}
+
+@media (min-width: 768px) {
+    .left-side, .right-side {
+        width: 50%;
+    }
+    .right-side {
+        padding-left: 200px;
+    }
 }
 
 .logo {
-    width: 500px;
-    height: 500px;
+    width: 100%;
+    max-width: 500px;
+    height: auto;
     margin-bottom: 20px;
 }
 
@@ -64,7 +85,7 @@ label {
 
 input[type="text"],
 input[type="email"],
-input[type="password"]{
+input[type="password"] {
     width: 100%;
     padding: 20px;
     border: 1px solid #ccc;
@@ -94,32 +115,36 @@ input[type="submit"]:hover {
     text-decoration: none;
     text-align: center;
     width: 100%;
-
 }
 
-.login-btn{
-    width: 220px;
-    align-items: left;
+.login-btn {
+    width: 100%;
+    max-width: 220px;
+    align-items: flex-start;
 }
 
-.welcome-text{
+.welcome-text {
     font-size: 1.5em;
     margin-bottom: 20px;
     text-align: center;
 }
 
-.div-cadastro-btn{
-    width: 220px;
-    align-items: left;
+.div-cadastro-btn {
+    width: 100%;
+    max-width: 220px;
+    align-items: flex-start;
 }
 
-.cadastro-btn{
-    width: 220px;
+.cadastro-btn {
+    width: 100%;
+    max-width: 220px;
     align-items: center;
-    margin-left: 160px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.form-title{
-    font-size: 1.5em; 
-    margin-left: 160px;
-    }
+.form-title {
+    font-size: 1.5em;
+    margin-left: auto;
+    margin-right: auto;
+}

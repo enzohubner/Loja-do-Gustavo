@@ -1,8 +1,6 @@
 import psycopg2
 
-conn = psycopg2.connect('')
-cursor = conn.cursor()
-
+from db import cursor, conn
 cursor.execute("SELECT * FROM usuarios")
 
 rows = cursor.fetchall()

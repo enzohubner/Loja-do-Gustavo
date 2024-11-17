@@ -50,6 +50,7 @@ body {
 .logo img {
     width: 100%;
     height: 100%;
+    max-width: 300px;
     object-fit: contain;
 }
 
@@ -92,17 +93,6 @@ input[type="submit"]:hover {
     background-color: #333;
 }
 
-.btn {
-    background-color: #ffffff;
-    color: #000000;
-    padding: 15px 70px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    text-decoration: none;
-    text-align: center;
-    width: 100%;
-}
 
 .login-btn {
     width: 100%;
@@ -116,18 +106,11 @@ input[type="submit"]:hover {
     text-align: center;
 }
 
-.div-cadastro-btn {
-    width: 100%;
-    max-width: 220px;
-    align-items: left;
-}
-
 .cadastro-btn {
     width: 100%;
-    max-width: 220px;
+    max-width: 500px;
     align-items: center;
     margin-left: auto;
-    margin-right: auto;
 }
 
 .form-title {

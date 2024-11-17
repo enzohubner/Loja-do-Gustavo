@@ -55,5 +55,11 @@ def resposta():
     senha = request.args.get('senha')
     return render_template('resposta.html', nome=nome, email=email, senha=senha)
 
+@app.route('/altera', methods=['GET'])
+def altera():
+    email = request.args.get('email')
+    senha = request.args.get('senha')
+    return render_template('altera.html', email=email, senha=senha)
+
 if __name__ == '__main__':
     app.run(debug=True)

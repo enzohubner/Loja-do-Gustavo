@@ -49,7 +49,7 @@ html, body {
         width: 50%;
     }
     .right-side {
-        padding-left: 100px;
+        padding-left: 200px;
     }
 }
 
@@ -132,13 +132,12 @@ input[type="submit"]:hover {
 
 .div-cadastro-btn {
     width: 100%;
-    max-width: 220px;
+    max-width: 500px;
     align-items: flex-start;
 }
 
 .cadastro-btn {
     width: 100%;
-    max-width: 220px;
     align-items: center;
     margin-left: auto;
     margin-right: auto;
@@ -146,6 +145,6 @@ input[type="submit"]:hover {
 
 .form-title {
     font-size: 1.5em;
-    margin-left: auto;
-    margin-right: auto;
+    max-width: 500px;
+    text-align: center;
 }

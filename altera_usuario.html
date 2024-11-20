@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alterar Dados</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link href="/static/altera_usuario.css" rel="stylesheet">
+    
+</head>
+<body>
+    <header>
+        {% include 'navbar.html' %}
+    </header>
+
+    <div class="container-fluid vh-100 d-flex flex-column justify-content-center" id="b-container" >
+        <form style="width: 70%">
+            <h2 class="text-center">Alterar Dados</h2>
+            <div class="form-group">
+                <label for="username">Usuário</label>
+                <input type="text" class="form-control" id="username" placeholder="Digite seu usuário" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" id="email" placeholder="Digite seu email" required>
+            </div>
+            <div class="form-group">
+                <label for="telefone">Telefone</label>
+                <input type="tel" class="form-control" id="telefone" placeholder="Digite seu telefone" required>
+            </div>
+            <div class="form-group">
+                <label for="escola">Escola</label>
+                <input type="text" class="form-control" id="escola" placeholder="Digite o nome da escola" required>
+            </div>
+            <div class="form-group">
+                <label for="endereco">Endereço</label>
+                <input type="text" class="form-control" id="endereco" placeholder="Digite seu endereço" required>
+            </div>
+            <div class="form-group">
+                <label for="senhaAntiga">Senha Antiga</label>
+                <input type="password" class="form-control" id="senhaAntiga" placeholder="Digite sua senha antiga" required>
+            </div>
+            <div class="form-group">
+                <label for="novaSenha">Nova Senha</label>
+                <input type="password" class="form-control" id="novaSenha" placeholder="Digite sua nova senha" required>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                <button type="button" class="btn btn-danger" onclick="confirmDelete()">Deletar Conta</button>
+            </div>
+        </form>
+    </div>
+
+    <footer>
+        {% include 'footer.html' %}
+    </footer>
+
+    <script>
+        function confirmDelete() {
+            if (confirm("Tem certeza que deseja deletar sua conta? Esta ação não pode ser desfeita.")) {
+                // Lógica para deletar a conta
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

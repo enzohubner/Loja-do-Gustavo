@@ -62,51 +62,13 @@ def teste():
 def altera_usuario():
     return render_template('altera_usuario.html')
 
+@app.route('/editar_produto', methods=['GET', 'POST'])
+def editar_produto():
+    return render_template('editar_produto.html')
 
-@app.route('/menu', methods=['GET', 'POST'])
-def menu():
-    #Exemplo de produtos pra teste
-    #Esses produtos devem vir do banco de dados por .fetchall()
-    produtos = [
-        {
-            'nome': 'Produto 1',
-            'valor': '10.00',
-            'disponibilidade': 'Em estoque',
-            'imagem_url': 'https://via.placeholder.com/150'
-        },
-        {
-            'nome': 'Produto 2',
-            'valor': '20.00',
-            'disponibilidade': 'Fora de estoque',
-            'imagem_url': 'https://via.placeholder.com/150'
-        },
-        {
-            'nome': 'Produto 3',
-            'valor': '30.00',
-            'disponibilidade': 'Em estoque',
-            'imagem_url': 'https://via.placeholder.com/150'
-        }
-    ,
-    {
-        'nome': 'Produto 4',
-        'valor': '40.00',
-        'disponibilidade': 'Em estoque',
-        'imagem_url': 'https://via.placeholder.com/150'
-    },
-    {
-        'nome': 'Produto 5',
-        'valor': '50.00',
-        'disponibilidade': 'Fora de estoque',
-        'imagem_url': 'https://via.placeholder.com/150'
-    },
-    {
-        'nome': 'Produto 6',
-        'valor': '60.00',
-        'disponibilidade': 'Em estoque',
-        'imagem_url': 'https://via.placeholder.com/150'
-    }
-    ]
-    return render_template('menu.html', produtos=produtos)
+@app.route('/notificacoes', methods=['GET', 'POST'])
+def editar_produto():
+    return render_template('notificacoes.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

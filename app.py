@@ -21,7 +21,7 @@ def index():
 
         return redirect('/login')
     else:
-        return render_template('index.html')
+        return render_template('home.html')
     
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -48,22 +48,15 @@ def login():
     else:
         return render_template('login.html')
 
-@app.route('/resposta', methods=['GET'])
-def resposta():
-    nome = request.args.get('nome')
-    email = request.args.get('email')
-    senha = request.args.get('senha')
-    return render_template('resposta.html', nome=nome, email=email, senha=senha)
-
-@app.route('/altera', methods=['GET'])
+@app.route('/navbar', methods=['GET'])
 def altera():
     email = request.args.get('email')
     senha = request.args.get('senha')
     return render_template('navbar.html', email=email, senha=senha)
 
-@app.route('/teste', methods=['GET', 'POST'])
+@app.route('/cadastra_produto', methods=['GET', 'POST'])
 def teste():
-    return render_template('teste.html')
+    return render_template('cadastra_produto.html')
 
 
 

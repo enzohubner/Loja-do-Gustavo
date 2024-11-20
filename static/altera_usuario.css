@@ -1,0 +1,10 @@
+.form-group {
+    margin-bottom: 1rem;
+}
+
+#b-container{
+    background-color:rgba(240, 230, 140, 0.3); 
+    align-items: center;
+    min-height: min-content;
+    padding: 20px;
+}

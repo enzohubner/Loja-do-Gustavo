@@ -58,7 +58,9 @@ def altera():
 def teste():
     return render_template('cadastra_produto.html')
 
-
+@app.route('/altera_usuario', methods=['GET', 'POST'])
+def altera_usuario():
+    return render_template('altera_usuario.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

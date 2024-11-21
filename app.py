@@ -62,13 +62,13 @@ def teste():
 def altera_usuario():
     return render_template('altera_usuario.html')
 
-@app.route('/editar_produto', methods=['GET', 'POST'])
-def editar_produto():
-    return render_template('editar_produto.html')
-
 @app.route('/notificacoes', methods=['GET', 'POST'])
-def editar_produto():
+def notificacoes():
     return render_template('notificacoes.html')
+
+@app.route('/editar_produto', methods=['GET', 'POST'])
+def editar_produtos():
+    return render_template('editar_produto.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

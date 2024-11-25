@@ -1,144 +1,143 @@
 body {
-    font-family: sans-serif;
-    margin: 0;
-    display: flex;
-    background-color: #f5f5f5;
-    flex-direction: column;
+    font-family: sans-serif; /* Define a font family for the body */
+    margin: 0; /* Remove default margin */
+    display: flex; /* Use flexbox layout */
+    background-color: #f5f5f5; /* Set background color */
+    flex-direction: column; /* Arrange children in a column */
 }
 
 .container-fluid {
-    max-width: 100%;
-    height: 100vh;
-    padding: 0;
+    max-width: 100%; /* Set maximum width to 100% */
+    height: 100vh; /* Full viewport height */
+    padding: 0; /* Remove default padding */
 }
 
 .container {
-    display: flex;
-    width: 100%;
-    height: 100vh;
-    flex-direction: column;
+    display: flex; /* Use flexbox layout */
+    width: 100%; /* Full width */
+    height: 100vh; /* Full viewport height */
+    flex-direction: column; /* Arrange children in a column */
 }
 
 .left-side {
-    background-color: #8B4513;
-    color: #fff;
-    padding: 20px;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    background-color: #8B4513; /* Set background color */
+    color: #fff; /* Set text color to white */
+    padding: 20px; /* Add padding */
+    width: 100%; /* Full width */
+    display: flex; /* Use flexbox layout */
+    flex-direction: column; /* Arrange children in a column */
+    justify-content: center; /* Center children vertically */
+    align-items: center; /* Center children horizontally */
 }
 
 .right-side {
-    background-color: rgba(240, 230, 140, 0.3);
-    padding: 20px;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    background-color: rgba(240, 230, 140, 0.3); /* Set background color with transparency */
+    padding: 20px; /* Add padding */
+    width: 100%; /* Full width */
+    display: flex; /* Use flexbox layout */
+    flex-direction: column; /* Arrange children in a column */
+    justify-content: center; /* Center children vertically */
+    align-items: center; /* Center children horizontally */
 }
 
 .logo {
-    width: 100%;
-    max-width: 500px;
-    height: auto;
-    margin-bottom: 20px;
+    width: 100%; /* Full width */
+    max-width: 500px; /* Maximum width */
+    height: auto; /* Maintain aspect ratio */
+    margin-bottom: 20px; /* Add bottom margin */
 }
 
 .logo img {
-    width: 100%;
-    height: 100%;
-    max-width: 300px;
-    object-fit: contain;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    max-width: 300px; /* Maximum width */
+    object-fit: contain; /* Contain image within bounds */
 }
 
 .title {
-    font-size: 2em;
-    margin-bottom: 20px;
+    font-size: 2em; /* Set font size */
+    margin-bottom: 20px; /* Add bottom margin */
 }
 
 .form-group {
-    margin-bottom: 20px;
-    width: 100%;
-    max-width: 500px;
+    margin-bottom: 20px; /* Add bottom margin */
+    width: 100%; /* Full width */
+    max-width: 500px; /* Maximum width */
 }
 
 label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
+    display: block; /* Block display */
+    margin-bottom: 5px; /* Add bottom margin */
+    font-weight: bold; /* Bold text */
 }
 
 input[type="text"],
 input[type="email"],
 input[type="password"] {
-    width: 100%;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    width: 100%; /* Full width */
+    padding: 20px; /* Add padding */
+    border: 1px solid #ccc; /* Set border */
+    border-radius: 5px; /* Rounded corners */
 }
 
 input[type="submit"] {
-    background-color: #8B4513;
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+    background-color: #8B4513; /* Set background color */
+    color: #fff; /* Set text color to white */
+    padding: 10px 20px; /* Add padding */
+    border: none; /* Remove border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
 }
 
 input[type="submit"]:hover {
-    background-color: #333;
+    background-color: #333; /* Change background color on hover */
 }
 
-
 .login-btn {
-    width: 100%;
-    max-width: 220px;
-    align-items: left;
+    width: 100%; /* Full width */
+    max-width: 220px; /* Maximum width */
+    align-items: left; /* Align items to the left */
 }
 
 .welcome-text {
-    font-size: 1.5em;
-    margin-bottom: 20px;
-    text-align: center;
+    font-size: 1.5em; /* Set font size */
+    margin-bottom: 20px; /* Add bottom margin */
+    text-align: center; /* Center text */
 }
 
 .cadastro-btn {
-    width: 100%;
-    max-width: 500px;
-    align-items: center;
-    margin-left: auto;
+    width: 100%; /* Full width */
+    max-width: 500px; /* Maximum width */
+    align-items: center; /* Center items */
+    margin-left: auto; /* Auto left margin */
 }
 
 .form-title {
-    font-size: 1.5em;
-    margin-left: auto;
-    margin-right: auto;
+    font-size: 1.5em; /* Set font size */
+    margin-left: auto; /* Auto left margin */
+    margin-right: auto; /* Auto right margin */
 }
 
 @media (min-width: 768px) {
     .container {
-        flex-direction: row;
+        flex-direction: row; /* Arrange children in a row */
     }
 
     .left-side {
-        width: 10%;
+        width: 10%; /* Set width to 10% */
     }
 
     .right-side {
-        width: 90%;
-        padding-left: 200px;
-        padding-right: 250px;
+        width: 90%; /* Set width to 90% */
+        padding-left: 200px; /* Add left padding */
+        padding-right: 250px; /* Add right padding */
     }
 
     .cadastro-btn {
-        margin-left: 160px;
+        margin-left: 160px; /* Add left margin */
     }
 
     .form-title {
-        margin-left: 160px;
+        margin-left: 160px; /* Add left margin */
     }
 }

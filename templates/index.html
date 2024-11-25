@@ -1,65 +1,81 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+  <!-- Meta tags for character set and viewport settings -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="../static/bootstrap/css/bootstrap.css">
-  <title>Cadastro - BigustaCakes</title>
-  <link rel="stylesheet" type="text/css" href="static/home.css">
   
+  <!-- Link to Bootstrap CSS -->
+  <link rel="stylesheet" href="../static/bootstrap/css/bootstrap.css">
+  
+  <!-- Page title -->
+  <title>Cadastro - BigustaCakes</title>
+  
+  <!-- Link to custom CSS -->
+  <link rel="stylesheet" type="text/css" href="static/index.css">
 </head>
 <body>
   <div class="container-fluid d-flex flex-wrap">
     <div class="left-side">
-
+      <!-- Logo section -->
       <div class="logo">
         <img src="static/png-logo-white.png" alt="Logo BigustaCakes">
       </div>
 
+      <!-- Welcome text section -->
       <div class="welcome-text">
         <h1>Bem vindo de Volta</h1>
         <p class="welcome-p-text">Se você já tem uma conta, faça login para continuar</p>
       </div>
 
+      <!-- Login button -->
       <div class="login-btn">
         <a href="/login" class="btn">Login</a>
       </div>
-
     </div>
+    
     <div class="right-side">
+      <!-- Registration form -->
       <form method="post">
-
+        <!-- Form title -->
         <div class="form-title">
           <h1>Cadastro</h1>
         </div>
+        
+        <!-- Name input field -->
         <div class="form-group">
           <input type="text" id="nome" name="nome" placeholder="Nome">
         </div>
 
+        <!-- School input field (optional) -->
         <div class="form-group">
           <input type="text" id="escola" name="escola" placeholder="Escola(Opcional)">
         </div>
 
+        <!-- Email input field -->
         <div class="form-group">
           <input type="email" id="email" name="email" placeholder="E-mail">
         </div>
 
+        <!-- Phone input field -->
         <div class="form-group">
           <input type="text" id="telefone" name="telefone" placeholder="Telefone">
         </div>
 
+        <!-- Password input field -->
         <div class="form-group">
           <input type="password" id="senha" name="senha" placeholder="Senha">
         </div>
 
+        <!-- Password confirmation input field -->
         <div class="form-group">
           <input type="password" id="confirmacao" name="confirmacao" placeholder="Confirme a senha">
         </div>
         
+        <!-- Submit button -->
         <div class="div-cadastro-btn">
-          <input class="cadastro-btn" type="submit" value="Cadastrar">
+          <input class="cadastro-btn" type="submit" value="Cadastrar" href="/login">
         </div>
-
       </form>
     </div>
   </div>

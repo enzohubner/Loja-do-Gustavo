@@ -2,30 +2,38 @@
 <html>
 <head>
     <title>My Website</title>
+    <!-- Flowbite CSS for styling -->
     <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css" rel="stylesheet" />
+    <!-- Custom CSS for the page -->
     <link href="/static/cadastra_produto.css" rel="stylesheet">
 </head>
 <body>
     <header class="sticky-top">
+        <!-- Include the navbar -->
         {% include 'navbar.html' %}
     </header>
     
     <main>
         <div class="container-fluid d-flex flex-wrap" id="fullc">
             <div class="left container-fluid d-flex flex-wrap">
-                <div class="uplimg flex items-center justify-center w-full" >
+                <!-- Upload image section -->
+                <div class="uplimg flex items-center justify-center w-full">
                     <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
                         <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                            <!-- SVG icon for upload -->
                             <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
                             </svg>
+                            <!-- Upload instructions -->
                             <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
                             <p class="text-xs text-gray-500 dark:text-gray-400">SVG, PNG, JPG or GIF</p>
                         </div>
+                        <!-- Hidden file input -->
                         <input id="dropzone-file" type="file" class="hidden" accept="image/jpeg" />
                     </label>
                 </div>
                 
+                <!-- Buttons for saving or canceling -->
                 <div class="container-fluid d-flex flex-wrap" id="btn-class">
                     <div class="b1-div">
                         <button type="submit" class="b1 px-4 py-2 mr-2 text-white bg-blue-500 rounded-lg hover:bg-blue-700 focus:outline-none focus:bg-blue-700">Salvar</button>
@@ -34,29 +42,36 @@
                         <button type="submit" class="b2 px-4 py-2 mr-2 text-white bg-red-500 rounded-lg hover:bg-red-700 focus:outline-none focus:bg-red-700">Cancelar</button>
                     </div>    
                 </div>
-
             </div>
             <div class="right">
                 <div class="flex flex-col items-center justify-center w-full h-full">
+                    <!-- Form for product registration -->
                     <form action="/cadastra_produto" method="post" class="flex flex-col items-center justify-center w-full">
+                        <!-- Input for product name -->
                         <div class="flex flex-col items-center justify-center w-full">
                             <input type="text" id="nome" name="nome" placeholder="Nome" class="w-full px-4 py-2 mb-4 text-sm text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500" required>
                         </div>
+                        <!-- Textarea for product description -->
                         <div class="flex flex-col items-center justify-center w-full">
                             <textarea id="descricao" name="descricao" placeholder="Descricao" class="w-full px-4 py-2 mb-4 text-sm text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500" required></textarea>
                         </div>
+                        <!-- Input for product price -->
                         <div class="flex flex-col items-center justify-center w-full">
                             <input type="number" id="preco" name="preco" placeholder="Preço" class="w-full px-4 py-2 mb-4 text-sm text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500" required>
                         </div>
+                        <!-- Input for product quantity -->
                         <div class="flex flex-col items-center justify-center w-full">
                             <input type="number" id="quantidade" name="quantidade" placeholder="Quantidade" class="w-full px-4 py-2 mb-4 text-sm text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500" required>
                         </div>
+                    </form>
                 </div>
             </div>
         </div> 
     </main>
 
+    <!-- Include the footer -->
     {% include 'footer.html' %}
+    <!-- Flowbite JS for interactivity -->
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
 </body>
 </html>

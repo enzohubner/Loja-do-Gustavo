@@ -1,3 +1,4 @@
+/* Define the base styles for the body element */
 body {
     font-family: sans-serif;
     margin: 0;
@@ -6,16 +7,19 @@ body {
     flex-direction: column;
 }
 
+/* Ensure the html and body elements take up the full height of the viewport */
 html, body {
     height: 100%;
 }
 
+/* Style for a full-width container with no padding */
 .container-fluid {
     max-width: 100%;
     height: 100%;
     padding: 0;
 }
 
+/* Style for a flex container that wraps its children */
 .container {
     display: flex;
     flex-wrap: wrap;    
@@ -24,6 +28,7 @@ html, body {
     height: 100%;
 }
 
+/* Style for the left-side section */
 .left-side {
     background-color: #8B4513;
     color: #fff;
@@ -35,6 +40,7 @@ html, body {
     align-items: center;
 }
 
+/* Style for the right-side section */
 .right-side {
     background-color: rgba(240, 230, 140, 0.3);
     padding: 20px;
@@ -44,6 +50,7 @@ html, body {
     justify-content: center;
 }
 
+/* Media query for screens wider than 768px */
 @media (min-width: 768px) {
     .left-side, .right-side {
         width: 50%;
@@ -53,7 +60,7 @@ html, body {
     }
 }
 
-
+/* Style for the logo container */
 .logo {
     width: 100%;
     max-width: 300px;
@@ -61,29 +68,34 @@ html, body {
     margin-bottom: 20px;
 }
 
+/* Style for the logo image */
 .logo img {
     width: 100%;
     height: 100%;
     object-fit: contain;
 }
 
+/* Style for the title text */
 .title {
     font-size: 2em;
     margin-bottom: 20px;
 }
 
+/* Style for form groups */
 .form-group {
     margin-bottom: 20px;
     width: 100%;
     max-width: 500px;
 }
 
+/* Style for form labels */
 label {
     display: block;
     margin-bottom: 5px;
     font-weight: bold;
 }
 
+/* Style for text, email, and password inputs */
 input[type="text"],
 input[type="email"],
 input[type="password"] {
@@ -93,6 +105,7 @@ input[type="password"] {
     border-radius: 5px;
 }
 
+/* Style for submit button */
 input[type="submit"] {
     background-color: #222;
     color: #fff;
@@ -102,10 +115,12 @@ input[type="submit"] {
     cursor: pointer;
 }
 
+/* Hover effect for submit button */
 input[type="submit"]:hover {
     background-color: #333;
 }
 
+/* Style for general buttons */
 .btn {
     background-color: #ffffff;
     color: #000000;
@@ -118,24 +133,28 @@ input[type="submit"]:hover {
     width: 100%;
 }
 
+/* Style for login button */
 .login-btn {
     width: 100%;
     max-width: 220px;
     align-items: flex-start;
 }
 
+/* Style for welcome text */
 .welcome-text {
     font-size: 1.5em;
     margin-bottom: 20px;
     text-align: center;
 }
 
+/* Style for the container of the cadastro button */
 .div-cadastro-btn {
     width: 100%;
     max-width: 500px;
     align-items: flex-start;
 }
 
+/* Style for the cadastro button */
 .cadastro-btn {
     width: 100%;
     align-items: center;
@@ -143,6 +162,7 @@ input[type="submit"]:hover {
     margin-right: auto;
 }
 
+/* Style for form titles */
 .form-title {
     font-size: 1.5em;
     max-width: 500px;

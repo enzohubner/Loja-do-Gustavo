@@ -1,9 +1,11 @@
+/* Style for form group elements */
 .form-group {
     margin-bottom: 1rem;
 }
 
-#b-container{
-    background-color:rgba(240, 230, 140, 0.3); 
+/* Style for container with id 'b-container' */
+#b-container {
+    background-color: rgba(240, 230, 140, 0.3); /* Light khaki background with transparency */
     align-items: center;
     min-height: min-content;
     padding: 20px;

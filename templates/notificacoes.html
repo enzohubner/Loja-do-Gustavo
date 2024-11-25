@@ -8,32 +8,39 @@
     <link href="/static/notificacoes.css" rel="stylesheet">
 </head>
 <body>
+    <!-- Include the navigation bar -->
     <header>
         {% include 'navbar.html' %}
     </header>
 
+    <!-- Main container for the form -->
     <div class="container-fluid vh-100 d-flex flex-column justify-content-center align-items-center" id="b-container">
+        <!-- Notification form -->
         <form style="width: 70%" class="bg-white p-4 rounded shadow">
             <h2 class="text-center text-brown">Adicionar Notificação</h2>
+            <!-- Message input field -->
             <div class="form-group">
                 <label for="mensagem">Mensagem</label>
                 <textarea class="form-control" id="mensagem" placeholder="Escreva o texto da notificação" rows="3" required></textarea>
             </div>
+            <!-- Buttons for user and employee -->
             <div class="form-group text-center">
                 <button type="button" class="btn btn-secondary">Usuário</button>
                 <button type="button" class="btn btn-secondary">Funcionário</button>
             </div>
+            <!-- Submit and cancel buttons -->
             <div class="text-center">
                 <button type="submit" class="btn btn-primary">Enviar</button>
-                <button type="button" class="btn btn-danger">Cancelar</button>
+                <a class="btn btn-danger" href="/menu">Cancelar</a>
             </div>
         </form>
     </div>
 
-    <footer>
-        {% include 'footer.html' %}
-    </footer>
+    <!-- Include the footer -->
+    {% include 'footer.html' %}
 
+
+    <!-- Scripts for jQuery and Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

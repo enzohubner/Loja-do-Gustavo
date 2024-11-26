@@ -28,7 +28,24 @@
             <div class="collapse navbar-collapse" id="menuNavbar">
                 <div class="navbar-nav ms-auto">
                     <a href="/menu" class="nav-link active" id="itens">Principal</a>
-                    <a href="/notificacoes" class="nav-link active" id="itens">Notificação</a>
+                    <div class="nav-item dropdown">
+                        <button class="nav-link position-relative" id="itens" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onKeyDown="if(event.key === 'Enter') this.click();">
+                            Notificação
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                <!--{{ unread_notifications_count }}-->
+                                 3
+                                <span class="visually-hidden">unread messages</span>
+                            </span>
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="notificacoesDropdown" id="not-collapse">
+                            <!-- Loop through notifications -->
+                            <a class="dropdown-item" id="itens">Notificação 1</a>
+                            <a class="dropdown-item" id="itens">Notificação 2</a>
+                            <a class="dropdown-item" id="itens">Notificação 3</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="/notificacoes" id="itens">Adicionar Notificação</a>
+                        </div>
+                    </div>
                     <a href="/contato" class="nav-link active"  id="itens">Contato</a>
                     <a href="/configuracao" class="nav-link active"  id="itens">Configuração</a>
                 </div>

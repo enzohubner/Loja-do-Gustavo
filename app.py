@@ -158,9 +158,9 @@ def deleta_produto():
 
 @app.route('/navbar', methods=['GET'])
 def altera():
-    email = request.args.get('email')
-    senha = request.args.get('senha')
-    return render_template('navbar.html', email=email, senha=senha)
+    notificacoes_ativas = ["Notificação 1", "Notificação 2", "Notificação 3"]
+    
+    return render_template('navbar.html', notificacoes_ativas=notificacoes_ativas)
 
 @app.route('/cadastra_produto', methods=['GET', 'POST'])
 def teste():
@@ -191,7 +191,15 @@ def alt_usuario():
 
 @app.route('/contato', methods=['GET', 'POST'])
 def contato():
-    return render_template('contato.html')
+    return render_template('chat.html')
+
+@app.route('/configuracao', methods=['GET', 'POST'])
+def configuracao():
+    return render_template('configuracoes.html')
+
+@app.route('/relatorios', methods=['GET', 'POST'])
+def relatorios():
+    return render_template('relatorios.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

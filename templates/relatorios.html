@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório</title>
+    <!-- Flowbite CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.7.0/flowbite.min.css" rel="stylesheet">
+    <!-- Tailwind CSS (Flowbite dependency) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" type="text/css" href="/static/navbar.css">
+
+</head>
+<body class="bg-gray-100">
+
+    <!-- Navbar Import -->
+    <div id="navbar">
+    {% include 'navbar.html' %}
+    </div>
+
+    <!-- Container Principal -->
+    <div class="container mx-auto mt-5">
+    <h1 class="text-2xl font-bold text-center text-gray-800">Relatório</h1>
+
+    <!-- Filtros -->
+    <div class="flex items-center justify-between p-4 mt-5 rounded-lg shadow-md" id="not-collapse">
+        <div class="flex items-center space-x-3">
+        <label for="dateFilter" class="font-medium text-white">DATA:</label>
+        <input type="date" id="dateFilter" class="border border-gray-300 rounded-lg p-2 text-sm">
+        </div>
+        <div class="flex items-center space-x-3">
+        <select id="filterDropdown" class="border border-gray-300 rounded-lg p-2 text-sm">
+            <option>Filtrar</option>
+            <option>Opção 1</option>
+            <option>Opção 2</option>
+        </select>
+        <button class="bg-brown-600 text-white rounded-lg px-4 py- text-sm hover:bg-brown-700">Buscar</button>
+        </div>
+    </div>
+
+    <!-- Gráfico -->
+    <div class="bg-white p-6 mt-5 rounded-lg shadow-md">
+        <canvas id="relatorioChart"></canvas>
+    </div>
+    </div>
+
+    <!-- Flowbite JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.7.0/flowbite.min.js"></script>
+    <script>
+    // Configuração do Gráfico usando Chart.js
+    const ctx = document.getElementById('relatorioChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+        labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+        datasets: [
+            {
+            label: 'Vendas Alfajor (mil unidades)',
+            data: [50, 75, 100, 120, 90, 130, 140, 150, 120, 100, 90, 110],
+            borderColor: '#FF5733',
+            backgroundColor: 'rgba(255, 87, 51, 0.2)',
+            fill: true,
+            tension: 0.4
+            },
+            {
+            label: 'Venda de Bolos (mil unidades)',
+            data: [80, 100, 120, 140, 110, 150, 160, 170, 130, 110, 100, 120],
+            borderColor: '#3498DB',
+            backgroundColor: 'rgba(52, 152, 219, 0.2)',
+            fill: true,
+            tension: 0.4
+            }
+        ]
+        },
+        options: {
+        responsive: true,
+        plugins: {
+            legend: {
+            position: 'top'
+            },
+            tooltip: {
+            callbacks: {
+                label: function (context) {
+                return `${context.dataset.label}: ${context.raw}`;
+                }
+            }
+            }
+        },
+        scales: {
+            x: {
+            title: {
+                display: true,
+                text: 'Meses'
+            }
+            },
+            y: {
+            title: {
+                display: true,
+                text: 'Produção'
+            },
+            beginAtZero: true
+            }
+        }
+        }
+    });
+    </script>
+    <footer id='footer-relat'>
+        {% include 'footer.html' %}
+    </footer>
+
+</body>
+</html>

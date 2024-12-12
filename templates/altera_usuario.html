@@ -16,37 +16,42 @@
     </header>
 
     <div class="container-fluid vh-100 d-flex flex-column justify-content-center" id="b-container">
-        <form style="width: 70%">
+        <form style="width: 70%" method="post">
             <h2 class="text-center">Alterar Dados</h2>
             <!-- Username Field -->
             <div class="form-group">
-                <label for="username">Usuário</label>
-                <input type="text" class="form-control" id="username" placeholder="Digite seu usuário" required>
+                <label for="nome">Usuário</label>
+                <input type="text" class="form-control" id="nome" name="nome" placeholder="Digite seu usuário" required>
             </div>
             <!-- Email Field -->
             <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" class="form-control" id="email" placeholder="Digite seu email" required>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Digite seu email" required>
             </div>
             <!-- Phone Field -->
             <div class="form-group">
                 <label for="telefone">Telefone</label>
-                <input type="tel" class="form-control" id="telefone" placeholder="Digite seu telefone" required>
+                <input type="text" class="form-control" id="telefone" name="telefone" placeholder="Digite seu telefone" required>
             </div>
             <!-- School Field -->
             <div class="form-group">
                 <label for="escola">Escola</label>
-                <input type="text" class="form-control" id="escola" placeholder="Digite o nome da escola" required>
+                <input type="text" class="form-control" id="escola" name="escola" placeholder="Digite o nome da escola" required>
             </div>
             <!-- Old Password Field -->
             <div class="form-group">
                 <label for="senhaAntiga">Senha Antiga</label>
-                <input type="password" class="form-control" id="senhaAntiga" placeholder="Digite sua senha antiga" required>
+                <input type="password" class="form-control" id="senhaAntiga" name="senhaAntiga" required>
             </div>
             <!-- New Password Field -->
             <div class="form-group">
                 <label for="novaSenha">Nova Senha</label>
-                <input type="password" class="form-control" id="novaSenha" placeholder="Digite sua nova senha" required>
+                <input type="password" class="form-control" id="novaSenha" name="novaSenha" required>
+            </div>
+            <!-- Confirm Password Field -->
+            <div class="form-group">
+                <label for="confirmaSenha">Confirme a Nova Senha</label>
+                <input type="password" class="form-control" id="confirmaSenha" name="confirmaSenha" required>
             </div>
             <!-- Buttons -->
             <div class="text-center">

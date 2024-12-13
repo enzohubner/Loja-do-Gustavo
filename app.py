@@ -21,7 +21,7 @@ def index():
         cursor.close()
         conn.close()
 
-        return redirect('/login')
+        return redirect('/')
     else:
         return render_template('index.html')
     
@@ -132,16 +132,18 @@ def editar_produto():
     else:
         return render_template('editar_produto.html')
 
-@app.route('/deleta_produto', methods=['POST'])
-def deleta_produto():
-    nome = request.form['nome']  
-
-    if nome:
-        cursor.execute("DELETE FROM produtos WHERE nome = %s", (nome,))
-        conn.commit()
-        return redirect('/produtos')
+@app.route('/excluir_produto', methods=['POST'])
+def excluir_produto():
+    if request.method == 'POST':
+        id = request.form['codigo'] 
+        if id:
+            cursor.execute("DELETE * produtos WHERE id=%s", (id))
+            conn.commit()
+            return redirect('/menu')
+        else:
+            return jsonify({"message": "Campos incompletos"}), 400 
     else:
-        return jsonify({"message": "Nome do produto não fornecido"}), 400  
+        return render_template('excluir_produto.html')
 
 
 @app.route('/navbar', methods=['GET'])

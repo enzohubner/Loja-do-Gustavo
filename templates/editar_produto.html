@@ -19,27 +19,27 @@
     <div class="container-fluid vh-100 d-flex flex-column justify-content-center" id="b-container" style="
     margin-top: 20px;">
         <!-- Formulário para editar produto -->
-        <form style="width: 70%">
+        <form style="width: 70%" method="post">
             <h2 class="text-center">Editar Produto</h2>
             <div class="form-group">
                 <label for="codigo">Código</label>
                 <!-- Campo de texto para o código do produto (somente leitura) -->
-                <input type="text" class="form-control" id="codigo" placeholder="Código do produto" readonly>
+                <input type="text" class="form-control" id="codigo" name="codigo" placeholder="Código do produto" required>
             </div>
             <div class="form-group">
                 <label for="nome">Nome</label>
                 <!-- Campo de texto para o nome do produto -->
-                <input type="text" class="form-control" id="nome" placeholder="Digite o nome do produto" required>
+                <input type="text" class="form-control" id="nome" name="nome" placeholder="Digite o nome do produto" required>
             </div>
             <div class="form-group">
                 <label for="valor">Valor</label>
                 <!-- Campo numérico para o valor do produto -->
-                <input type="number" class="form-control" id="valor" placeholder="Digite o valor do produto" required>
+                <input type="number" class="form-control" id="valor" name="valor" placeholder="Digite o valor do produto" required>
             </div>
             <div class="form-group">
                 <label for="descricao">Descrição</label>
                 <!-- Área de texto para a descrição do produto -->
-                <textarea class="form-control" id="descricao" placeholder="Digite a descrição do produto" rows="3" required></textarea>
+                <textarea class="form-control" id="descricao" name="descricao" placeholder="Digite a descrição do produto" rows="3" required></textarea>
             </div>
             <div class="form-group">
                 <label for="imagem">Imagem</label>

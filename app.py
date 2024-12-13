@@ -96,16 +96,14 @@ def cadastra_produto():
         nome = request.form['nome']
         descricao = request.form['descricao']
         preco = request.form['preco']
-        quantidade = request.form['quantidade']
 
-        if nome and descricao and preco and quantidade: 
-            cursor.execute("INSERT INTO produtos (nome, descricao, preco, quantidade) VALUES (%s, %s, %s, %s)",(nome, descricao, preco, quantidade))
+        if nome and descricao and preco: 
+            cursor.execute("INSERT INTO produtos (nome, valor, descricao) VALUES (%s, %s, %s)",(nome, preco, descricao))
             conn.commit()
 
             return redirect('/menu')
         else:
             return jsonify({"message": "Campos incompletos"}), 400
-
     return render_template('cadastra_produto.html')
 
 
@@ -116,34 +114,23 @@ def lista_produtos():
 
     return render_template('produtos.html', produtos=produtos)
 
-@app.route('/edita_produto', methods=['GET', 'POST'])
-def edita_produto():
+@app.route('/editar_produto', methods=['GET', 'POST'])
+def editar_produto():
     if request.method == 'POST':
-        nome = request.form['nome']  
-        novo_nome = request.form['novo_nome'] 
+        print("Foi post")
+        id = request.form['codigo']  
+        nome = request.form['nome'] 
+        valor = request.form['valor']
         descricao = request.form['descricao']
-        preco = request.form['preco']
-        quantidade = request.form['quantidade']
 
-        if nome and novo_nome and descricao and preco and quantidade: 
-            cursor.execute("UPDATE produtos SET nome=%s, descricao=%s, preco=%s, quantidade=%s WHERE nome=%s", (novo_nome, descricao, preco, quantidade, nome))
+        if id and nome and valor and descricao: 
+            cursor.execute("UPDATE produtos SET nome=%s, valor=%s, descricao=%s WHERE id=%s", (nome, valor, descricao, id))
             conn.commit()
-            return redirect('edita_produtos.html')
+            return redirect('/menu')
         else:
             return jsonify({"message": "Campos incompletos"}), 400 
-
     else:
-        nome = request.args.get('nome')  
-        if not nome:
-            return jsonify({"message": "Nome não fornecido"}), 400
-
-        cursor.execute("SELECT nome, descricao, preco, quantidade FROM produtos WHERE nome=%s", (nome,))
-        produto = cursor.fetchone()
-
-        if not produto:  
-            return jsonify({"message": "Produto não encontrado"}), 404
-
-        return render_template('editar_produto.html', produto=produto)
+        return render_template('editar_produto.html')
 
 @app.route('/deleta_produto', methods=['POST'])
 def deleta_produto():

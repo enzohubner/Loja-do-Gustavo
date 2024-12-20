@@ -1,4 +1,3 @@
 .env
-gugu/
-*gugu/
-a.py
+venv/
+*venv/

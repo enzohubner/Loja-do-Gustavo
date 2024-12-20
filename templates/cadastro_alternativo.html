@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .card {
+      width: 360px;
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    .logo {
+      display: block;
+      margin: 0 auto 2rem;
+      width: 40%;
+    }
+
+    .btn-primary {
+      background-color:#D7B49E;
+      border-color: #D7B49E;
+      font-weight: bold;
+    }
+
+    .btn-primary:hover {
+        background-color:rgb(173, 145, 127);
+        border-color: rgb(173, 145, 127);
+    }
+
+    .btn-link {
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .btn-link:hover {
+      text-decoration: underline;
+    }
+
+    .captcha {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .btn-outline-primary {
+      font-weight: 600;
+      border-width: 2px;
+    }
+
+    .footer-buttons a {
+      width: 48%;
+      font-size: 14px;
+    }
+
+    .forgot-password {
+        color: #6c757d;
+        text-decoration: none;
+        font-size: 0.9rem;
+        display: block;
+        text-align: center;
+        margin: 1rem 0;
+    }
+
+    .form-control {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        padding: 0.75rem 1rem;
+        height: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="card p-4">
+    <div class="text-center">
+      <img src="/static/png-logo-black.png" alt="Logo" class="logo">
+    </div>
+    <form>
+      <!-- Nome -->
+      <div class="mb-3" >
+        <input type="text" class="form-control" id="nome" placeholder="Digite seu nome" required>
+      </div>
+      
+      <!-- Escola -->
+      <div class="mb-3">
+        <input type="text" class="form-control" id="escola" placeholder="Digite o nome da escola" required>
+      </div>
+
+      <!-- Email -->
+      <div class="mb-3">
+        <input type="email" class="form-control" id="email" placeholder="Digite seu email" required>
+      </div>
+
+      <!-- Telefone -->
+      <div class="mb-3">
+        <input type="tel" class="form-control" id="telefone" placeholder="Digite seu telefone" required>
+      </div>
+
+      <!-- Senha -->
+      <div class="mb-3">
+        <input type="password" class="form-control" id="senha" placeholder="Digite sua senha" required>
+      </div>
+
+      <!-- Confirmar Senha -->
+      <div class="mb-3">
+        <input type="password" class="form-control" id="confirmeSenha" placeholder="Confirme sua senha" required>
+      </div>
+      
+      <a href="/login" class="forgot-password">Já tem cadastro?</a>
+
+      <!-- Botão de Cadastro -->
+      <button type="submit" class="btn btn-primary w-100">Cadastrar</button>
+    </form>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

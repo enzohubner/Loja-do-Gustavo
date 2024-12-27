@@ -1,0 +1,114 @@
+:root {
+    --primary-color: #ebccb9;
+    --secondary-color: #A3C1DA;
+    --danger-color: #F1948A;
+    --third-color: #a77748;
+
+}
+
+.product-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-bottom: 1rem;
+}
+
+.product-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.product-content {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 1rem;
+    gap: 1rem;
+}
+
+.product-image-container {
+    width: 120px;
+    flex-shrink: 0;
+}
+
+.product-image {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.product-info {
+    flex: 1;
+    min-width: 200px;
+    padding-right: 1rem;
+}
+
+.product-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-left: auto;
+}
+
+@media (max-width: 768px) {
+    .product-content {
+        flex-direction: column;
+    }
+
+    .product-image-container {
+        width: 100%;
+        max-width: 200px;
+        margin: 0 auto;
+    }
+
+    .product-info {
+        width: 100%;
+        padding-right: 0;
+    }
+
+    .product-actions {
+        width: 100%;
+        justify-content: flex-end;
+        padding-top: 0.5rem;
+        border-top: 1px solid #eee;
+        margin-top: 0.5rem;
+    }
+}
+
+.btn-edit, .btn-delete, .btn-commit {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    color: white;
+    font-size: 0.875rem;
+    transition: opacity 0.2s;
+    text-decoration: none;
+}
+
+.btn-commit {
+    background-color: var(--third-color);
+}
+
+.btn-edit {
+    background-color: var(--secondary-color);
+}
+
+.btn-delete {
+    background-color: var(--danger-color);
+}
+
+.btn-edit:hover, .btn-delete:hover {
+    opacity: 0.9;
+}
+
+.search-container {
+    margin: 2rem 0;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.hidden-element {
+    display: none !important;
+}

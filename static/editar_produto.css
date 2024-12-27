@@ -1,96 +1,44 @@
-/* Estilo geral do corpo */
-body {
-    background-color: #f8f5f2; /* Cor de fundo semelhante ao creme ou bege claro */
-    font-family: Arial, sans-serif;
-    color: #333;
-    margin: 0; /* Remove margens padrão */
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+:root {
+    --secondary-color: #A3C1DA;
+    --danger-color: #F1948A;
 }
 
-/* Estilo do container principal */
-#b-container {
-    background-color: #fff;
-    padding: 20px;
-    padding-top: 20px;
+.btn-save, .btn-cancel{
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    color: white;
+    font-size: 0.875rem;
+    text-decoration: none;
+}
+
+.btn-save{
+    background-color: var(--secondary-color);
+    border: none;
+}
+
+.btn-cancel{
+    background-color: var(--danger-color);
+    border: none;
+}
+
+.card-edit {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 1rem;
+    gap: 1rem;
+    background-color: white;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 600px; /* Largura máxima para garantir que não fique muito largo em telas grandes */
-    margin: auto; /* Centraliza o container horizontalmente */
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* Centraliza os itens dentro do container */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-bottom: 1rem;
 }
 
-/* Estilo do cabeçalho do formulário */
-h2 {
-    color: #8b4513; /* Cor do texto do título, semelhante ao marrom */
-    margin-bottom: 20px;
-    text-align: center; /* Centraliza o texto do título */
+.card-edit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-/* Estilo dos labels e inputs */
-.form-group {
-    width: 100%; /* Garante que os inputs ocupem toda a largura disponível do formulário */
-    margin-bottom: 15px; /* Espaçamento entre os campos */
-}
-
-.form-group label {
-    font-weight: bold;
-    color: #555;
-}
-
-.form-control {
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    padding: 10px;
-    width: 100%;
-}
-
-/* Botões */
-.text-center {
-    display: flex;
-    justify-content: center;
-    gap: 10px; /* Espaçamento entre os botões */
-    width: 100%;
-}
-
-.btn-primary {
-    background-color: #8b4513; /* Marrom para o botão Salvar */
-    border-color: #8b4513;
-}
-
-.btn-primary:hover {
-    background-color: #a0522d; /* Tom mais claro ao passar o mouse */
-    border-color: #a0522d;
-}
-
-.btn-danger {
-    background-color: #d9534f; /* Vermelho para o botão Cancelar */
-    border-color: #d9534f;
-}
-
-.btn-danger:hover {
-    background-color: #c9302c;
-    border-color: #c9302c;
-}
-
-/* Estilo do footer */
-footer {
-    background-color: #8b4513; /* Cor de fundo do rodapé */
-    color: #fff;
-    padding: 10px 0;
+#imagem {
     text-align: center;
-    width: 100%;
-}
-
-/* Estilo do cabeçalho */
-header {
-    background-color: #8b4513; /* Cor de fundo do cabeçalho */
-    color: #fff;
-    padding: 10px 0;
-    text-align: center;
-    width: 100%;
+    padding-left: 0;
 }

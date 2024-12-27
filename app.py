@@ -114,14 +114,27 @@ def lista_produtos():
 
     return render_template('produtos.html', produtos=produtos)
 
-@app.route('/editar_produto', methods=['GET', 'POST'])
-def editar_produto():
+@app.route('/editar_produto/<int:id>', methods=['GET', 'POST'])
+def editar_produto(id):
+    cursor.execute("SELECT * FROM produtos WHERE id=%s", (id,))
+    produto = cursor.fetchone()
+
     if request.method == 'POST':
-        print("Foi post")
+
         id = request.form['codigo']  
         nome = request.form['nome'] 
         valor = request.form['valor']
         descricao = request.form['descricao']
+
+        '''Cara, tive que aprender pra testar se a pagina tava funcionando, entao vou deixar aqui pq deve te ajudar
+        em algum momento, o request.files.get('imagem') pega a imagem que o usuario submeteu, e o save salva ela na pasta 
+        que no nosso caso é imagens! Depois de salvar ela na pasta, no banco de dados voce só vai salvar o caminho dela
+        que é o f' imagens/{imagem.filename}'  '''
+
+        imagem = request.files.get('imagem')
+
+        if imagem:
+            imagem.save(f'imagens/{imagem.filename}')
 
         if id and nome and valor and descricao: 
             cursor.execute("UPDATE produtos SET nome=%s, valor=%s, descricao=%s WHERE id=%s", (nome, valor, descricao, id))
@@ -130,7 +143,7 @@ def editar_produto():
         else:
             return jsonify({"message": "Campos incompletos"}), 400 
     else:
-        return render_template('editar_produto.html')
+        return render_template('editar_produto.html', produto=produto)
 
 @app.route('/excluir_produto', methods=['POST'])
 def excluir_produto():
@@ -159,13 +172,26 @@ def notificacoes():
 @app.route('/menu', methods=['GET', 'POST'])
 def menu():
     produtos = [
-        {"id": 1, "nome": "Produto A", "descricao": "Descrição do Produto A", "preco": 10.99, "quantidade": 100},
+        {"id": 1, "nome": "Produto A", "descricao": "Descrição do Produto A", "preco": 10.99, "quantidade": 100, "imagem":'/static/png-logo-black.png'},
         {"id": 2, "nome": "Produto B", "descricao": "Descrição do Produto B", "preco": 20.99, "quantidade": 200},
         {"id": 3, "nome": "Produto C", "descricao": "Descrição do Produto C", "preco": 30.99, "quantidade": 300},
         {"id": 4, "nome": "Produto D", "descricao": "Descrição do Produto D", "preco": 40.99, "quantidade": 400},
-        {"id": 5, "nome": "Produto E", "descricao": "Descrição do Produto E", "preco": 50.99, "quantidade": 500}
+        {"id": 5, "nome": "Produto E", "descricao": "Descrição do Produto E", "preco": 50.99, "quantidade": 500},
+        {"id": 6, "nome": "Produto F", "descricao": "Descrição do Produto E", "preco": 50.99, "quantidade": 500}
     ]
-    return render_template('menu.html', produtos=produtos)
+
+    user= {'role' : 'admin'}
+
+    return render_template('menu.html', produtos=produtos, user=user)
+
+@app.route('/navbar_alternativa', methods=['GET', 'POST'])
+def navbar_alternativa():
+    notificacoes_ativas = [
+        {"notificacao": "Notificação 1", "permissao":'admin'},
+        {"notificacao": "Notificação 2", "permissao":'funcionario'},
+        {"notificacao": "Notificação 3", "permissao":'usuario'}]
+    role = 'admin'
+    return render_template('navbar_alternativa.html', role=role, notificacoes_ativas=notificacoes_ativas)
 
 @app.route('/contato', methods=['GET', 'POST'])
 def contato():
@@ -178,6 +204,14 @@ def configuracao():
 @app.route('/relatorios', methods=['GET', 'POST'])
 def relatorios():
     return render_template('relatorios.html')
+
+@app.route('/login_alternativo', methods=['GET', 'POST'])
+def login_alternativo():
+    return render_template('login_alternativo.html')
+
+@app.route('/cadastro_alternativo', methods=['GET', 'POST'])
+def cadastro_alternativo():
+    return render_template('cadastro_alternativo.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

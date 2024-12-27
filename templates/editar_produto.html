@@ -5,62 +5,70 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Produto</title>
-    <!-- Link para o CSS do Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <!-- Link para o CSS personalizado -->
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css" rel="stylesheet"/>
     <link href="/static/editar_produto.css" rel="stylesheet">
+
 </head>
-<body>
+<body class="bg-gray-50">
     <header class="sticky-top">
-        <!-- Inclusão do template do navbar -->
         {% include 'navbar.html' %}
     </header>
+    
+    <div class="container py-4">
+        <h2 class="text-3xl font-bold text-center mb-4">Editar Produto</h2>
 
-    <div class="container-fluid vh-100 d-flex flex-column justify-content-center" id="b-container" style="
-    margin-top: 20px;">
-        <!-- Formulário para editar produto -->
-        <form style="width: 70%" method="post">
-            <h2 class="text-center">Editar Produto</h2>
-            <div class="form-group">
-                <label for="codigo">Código</label>
-                <!-- Campo de texto para o código do produto (somente leitura) -->
-                <input type="text" class="form-control" id="codigo" name="codigo" placeholder="Código do produto" required>
+        <div class="card-edit mx-auto" style="max-width: 600px;">
+            <div class="card-body p-4">
+                <form method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="codigo" class="form-label">Código</label>
+                        <input type="text" class="form-control" id="codigo" name="codigo" placeholder="{{produto.id}}" value="{{produto.id}}" readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">Nome do produto</label>
+                        <input type="text" class="form-control" id="nome" name="nome" placeholder="{{produto.nome}}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="valor" class="form-label">Valor do produto</label>
+                        <input type="text" class="form-control" id="valor" name="valor" placeholder="{{produto.preco}}" >
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="valor" class="form-label">Quantidade</label>
+                        <input type="text" class="form-control" id="quantidade" name="quantidade" placeholder="{{produto.quantidade}}" >
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="descricao" class="form-label">Descrição</label>
+                        <textarea class="form-control" id="descricao" name="descricao" rows="3" placeholder="Digite a descrição do produto"></textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="imagem" class="form-label">Imagem</label>
+                        <div class="input-group">
+                            <input type="file" name="imagem" class="form-control" id="imagem" accept="image/*">
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-center gap-2">
+                        <button type="submit" class="btn-save">Salvar</button>
+                        <button type="button" class="btn-cancel" >Cancelar</button>
+                    </div>
+
+                </form>
             </div>
-            <div class="form-group">
-                <label for="nome">Nome</label>
-                <!-- Campo de texto para o nome do produto -->
-                <input type="text" class="form-control" id="nome" name="nome" placeholder="Digite o nome do produto" required>
-            </div>
-            <div class="form-group">
-                <label for="valor">Valor</label>
-                <!-- Campo numérico para o valor do produto -->
-                <input type="number" class="form-control" id="valor" name="valor" placeholder="Digite o valor do produto" required>
-            </div>
-            <div class="form-group">
-                <label for="descricao">Descrição</label>
-                <!-- Área de texto para a descrição do produto -->
-                <textarea class="form-control" id="descricao" name="descricao" placeholder="Digite a descrição do produto" rows="3" required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="imagem">Imagem</label>
-                <!-- Campo para upload de imagem do produto -->
-                <input type="file" class="form-control" id="imagem" accept="image/*">
-            </div>
-            <div class="text-center">
-                <!-- Botões de ação -->
-                <button type="submit" class="btn btn-primary">Salvar</button>
-                <a class="btn btn-danger" href="/menu">Cancelar</a>
-            </div>
-        </form>
+        </div>
     </div>
 
-    <footer>
-        <!-- Inclusão do template do footer -->
-        {% include 'footer.html' %}
-    </footer>
 
     <!-- Scripts do jQuery e Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

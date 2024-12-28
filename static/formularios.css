@@ -1,0 +1,47 @@
+:root {
+    --secondary-color: #A3C1DA;
+    --danger-color: #F1948A;
+    --primary-color: #ebccb9;
+}
+
+.btn-save, .btn-cancel{
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    color: white;
+    font-size: 0.875rem;
+    text-decoration: none;
+}
+
+.btn-acessar, .btn-search, .btn-save, .btn-cancel{
+    background-color: var(--primary-color);
+    border: none;
+}
+
+.btn-acessar:hover, .btn-search:hover, .btn-save:hover, .btn-cancel:hover {
+    background-color: #d4b7a5;
+    cursor: pointer;
+}
+
+.bod
+
+.card-edit {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 1rem;
+    gap: 1rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-bottom: 1rem;
+}
+
+.card-edit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+#imagem {
+    text-align: center;
+    padding-left: 0;
+}

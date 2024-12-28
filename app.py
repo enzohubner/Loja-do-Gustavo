@@ -23,7 +23,7 @@ def index():
 
         return redirect('/')
     else:
-        return render_template('index.html')
+        return render_template('cadastro.html')
     
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -71,7 +71,13 @@ def altera_usuario():
         else:
             return jsonify({"message": "Senha antiga incorreta"}), 400
     else:
-        return render_template('altera_usuario.html')#, usuario=usuario)
+        usuario = {
+            'id': 'usuario',
+            'email': 'usuario@',
+            'telefone': '99999-9999',
+            'escola': 'Escola XYZ'
+        }
+        return render_template('altera_usuario.html', usuario=usuario)
 
 
 @app.route('/deleta_usuario', methods=['POST'])

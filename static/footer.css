@@ -1,7 +1,0 @@
-/* Estilo para o rodapé da página */
-footer {
-    background-color: #8B4513; /* Define a cor de fundo do rodapé */
-    /*position: relative; /* Define a posição relativa do rodapé */
-    bottom: 0; /* Posiciona o rodapé na parte inferior */
-    width: 100%; /* Define a largura do rodapé para 100% */
-}

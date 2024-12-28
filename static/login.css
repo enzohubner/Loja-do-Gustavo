@@ -1,143 +1,82 @@
 body {
-    font-family: sans-serif; /* Define a font family for the body */
-    margin: 0; /* Remove default margin */
-    display: flex; /* Use flexbox layout */
-    background-color: #f5f5f5; /* Set background color */
-    flex-direction: column; /* Arrange children in a column */
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 15px;
 }
-
-.container-fluid {
-    max-width: 100%; /* Set maximum width to 100% */
-    height: 100vh; /* Full viewport height */
-    padding: 0; /* Remove default padding */
+.card {
+    width: 100%;
+    max-width: 380px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    padding: 2rem 1.5rem;
 }
-
-.container {
-    display: flex; /* Use flexbox layout */
-    width: 100%; /* Full width */
-    height: 100vh; /* Full viewport height */
-    flex-direction: column; /* Arrange children in a column */
-}
-
-.left-side {
-    background-color: #8B4513; /* Set background color */
-    color: #fff; /* Set text color to white */
-    padding: 20px; /* Add padding */
-    width: 100%; /* Full width */
-    display: flex; /* Use flexbox layout */
-    flex-direction: column; /* Arrange children in a column */
-    justify-content: center; /* Center children vertically */
-    align-items: center; /* Center children horizontally */
-}
-
-.right-side {
-    background-color: rgba(240, 230, 140, 0.3); /* Set background color with transparency */
-    padding: 20px; /* Add padding */
-    width: 100%; /* Full width */
-    display: flex; /* Use flexbox layout */
-    flex-direction: column; /* Arrange children in a column */
-    justify-content: center; /* Center children vertically */
-    align-items: center; /* Center children horizontally */
-}
-
 .logo {
-    width: 100%; /* Full width */
-    max-width: 500px; /* Maximum width */
-    height: auto; /* Maintain aspect ratio */
-    margin-bottom: 20px; /* Add bottom margin */
+    width: 180px;
+    height: auto;
+    margin: 0 auto 2rem;
+    display: block;
+}
+.form-control {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 0.75rem 1rem;
+    height: auto;
+}
+.btn-entrar {
+    background-color: #D7B49E;
+    border: none;
+    color: white;
+    padding: 0.75rem;
+    width: 100%;
+    margin: 1rem 0;
 }
 
-.logo img {
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    max-width: 300px; /* Maximum width */
-    object-fit: contain; /* Contain image within bounds */
+.btn-entrar:hover {
+    background-color: rgb(173, 145, 127);
+    color: white;
 }
-
-.title {
-    font-size: 2em; /* Set font size */
-    margin-bottom: 20px; /* Add bottom margin */
+.forgot-password {
+    color: #6c757d;
+    text-decoration: none;
+    font-size: 0.9rem;
+    display: block;
+    text-align: center;
+    margin: 1rem 0;
 }
-
-.form-group {
-    margin-bottom: 20px; /* Add bottom margin */
-    width: 100%; /* Full width */
-    max-width: 500px; /* Maximum width */
+.recaptcha-box {
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 0.5rem;
+    margin: 1rem 0;
 }
-
-label {
-    display: block; /* Block display */
-    margin-bottom: 5px; /* Add bottom margin */
-    font-weight: bold; /* Bold text */
+.recaptcha-error {
+    color: #dc3545;
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
 }
-
-input[type="text"],
-input[type="email"],
-input[type="password"] {
-    width: 100%; /* Full width */
-    padding: 20px; /* Add padding */
-    border: 1px solid #ccc; /* Set border */
-    border-radius: 5px; /* Rounded corners */
+.event-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
 }
-
-input[type="submit"] {
-    background-color: #8B4513; /* Set background color */
-    color: #fff; /* Set text color to white */
-    padding: 10px 20px; /* Add padding */
-    border: none; /* Remove border */
-    border-radius: 5px; /* Rounded corners */
-    cursor: pointer; /* Pointer cursor on hover */
+.btn-event {
+    background-color: #4169E1;
+    border: none;
+    color: white;
+    padding: 0.75rem 0.5rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
 }
-
-input[type="submit"]:hover {
-    background-color: #333; /* Change background color on hover */
-}
-
-.login-btn {
-    width: 100%; /* Full width */
-    max-width: 220px; /* Maximum width */
-    align-items: left; /* Align items to the left */
-}
-
-.welcome-text {
-    font-size: 1.5em; /* Set font size */
-    margin-bottom: 20px; /* Add bottom margin */
-    text-align: center; /* Center text */
-}
-
-.cadastro-btn {
-    width: 100%; /* Full width */
-    max-width: 500px; /* Maximum width */
-    align-items: center; /* Center items */
-    margin-left: auto; /* Auto left margin */
-}
-
-.form-title {
-    font-size: 1.5em; /* Set font size */
-    margin-left: auto; /* Auto left margin */
-    margin-right: auto; /* Auto right margin */
-}
-
-@media (min-width: 768px) {
-    .container {
-        flex-direction: row; /* Arrange children in a row */
-    }
-
-    .left-side {
-        width: 10%; /* Set width to 10% */
-    }
-
-    .right-side {
-        width: 90%; /* Set width to 90% */
-        padding-left: 200px; /* Add left padding */
-        padding-right: 250px; /* Add right padding */
-    }
-
-    .cadastro-btn {
-        margin-left: 160px; /* Add left margin */
-    }
-
-    .form-title {
-        margin-left: 160px; /* Add left margin */
-    }
+.copyright {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 0.8rem;
+    color: #6c757d;
 }

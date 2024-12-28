@@ -1,59 +1,101 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-    <title>Configuações</title>
-    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css" rel="stylesheet" />
-</head>
-<body>
-    <header class="sticky-top">
-        {% include 'navbar.html' %}
-    </header>
-
-    <div class="container mt-5">
-        <h1 class="text-center mb-4">Configurações</h1>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações - BigustaCakes</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" />
+    <link href="/static/formularios.css" rel="stylesheet">
+    <style>
+        .custom-card {
+            transition: box-shadow 0.3s ease-in-out;
+        }
         
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Opções de Configuração</h5>
+        .custom-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .page-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 3rem;
+        }
+    </style>
+</head>
+
+
+<body class="bg-white">
+    
+    {% include 'navbar.html' %}
+    <div class="page-container py-3">
+
+        <!-- Header -->
+        <h1 class="text-3xl font-bold text-center my-8">Configurações</h1>
+
+        <!-- Search Bar -->
+        <div class="mb-8">
+            <form class="flex gap-2">   
+                <div class="relative w-full">
+                    <input type="search" class="block w-full p-2.5 text-sm rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Buscar configuração" required>
+                </div>
+                <button type="submit" class="btn-search p-2.5 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300">
+                    <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                    </svg>
+                </button>
+            </form>
+        </div>
+
+        <!-- Configuration Cards -->
+        <div class="space-y-3">
+            <!-- Alterar Conta Card -->
+            <div class="custom-card p-6 bg-white border border-gray-200 rounded-lg">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">Alterar Conta</h3>
+                        <p class="text-gray-600">Gerencie suas informações pessoais e preferências</p>
                     </div>
-                    <div class="card-body">
-                        <p>Selecione uma opção abaixo para configurar sua conta ou preferências:</p>
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>Alterar Conta</span>
-                                <a href="/altera_usuario" class="btn btn-outline-primary btn-sm">Acessar</a>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>Cadastrar Produto</span>
-                                <a href="/cadastra_produto" class="btn btn-outline-primary btn-sm">Acessar</a>
-                            </li>
-                            <!-- <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>Preferências de Notificação</span>
-                                <button class="btn btn-outline-primary btn-sm">Configurar</button>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>Segurança e Privacidade</span>
-                                <button class="btn btn-outline-primary btn-sm">Configurar</button>
-                            </li> -->
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span>Relatórios</span>
-                                <a href="/relatorios" class="btn btn-outline-primary btn-sm">Acessar</a>
-                            </li>
-                        </ul>
+                    <a type="button" href="/altera_usuario" class="no-underline btn-acessar text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">
+                        Acessar
+                    </a>
+                </div>
+            </div>
+
+            <!-- Cadastrar Produto Card -->
+            <div class="custom-card p-6 bg-white border border-gray-200 rounded-lg">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">Cadastrar Produto</h3>
+                        <p class="text-gray-600">Adicione e gerencie produtos no catálogo</p>
                     </div>
-                    <div class="card-footer text-center">
-                        <button class="btn btn-secondary">Voltar</button>
+                    <a type="button" href="/cadastra_produto" class="no-underline btn-acessar text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">
+                        Acessar
+                    </a>
+                </div>
+            </div>
+
+            <!-- Relatórios Card -->
+            <div class="custom-card p-6 bg-white border border-gray-200 rounded-lg">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">Relatórios</h3>
+                        <p class="text-gray-600">Visualize estatísticas e relatórios de vendas</p>
                     </div>
+                    <a type="button" href="/relatorios" class="no-underline btn-acessar text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">
+                    Acessar
+                    </a>
                 </div>
             </div>
         </div>
+
+        <!-- Back Button -->
+        <div class="mt-8 text-center">
+            <button type="button" class="text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-6 py-2.5 mb-8" onclick="{ window.history.back(); }">
+                Voltar
+            </button>
+        </div>
     </div>
 
-
-
-    {%include 'footer.html'%}
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
 </body>
 </html>

@@ -1,55 +1,49 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>My Website</title>
-    <!-- Flowbite CSS for styling -->
-    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css" rel="stylesheet" />
-    <!-- Custom CSS for the page -->
-</head>
-<body class="bg-light">
-    <header class="sticky-top">
-        <!-- Include the navbar -->
-        {% include 'navbar.html' %}
-    </header>
+{% extends "base.html" %}
 
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card shadow">
-                    <div class="card-body">
-                        <h1 class="card-title text-center mb-4">Entre em contato</h1>
+{% block title %}Chat{% endblock %}
 
-                        <!-- Mensagens de feedback -->
-                        {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                            <div class="alert-container">
-                                {% for category, message in messages %}
-                                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                                    {{ message }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                        {% endwith %}
+<!-- Chat screen -->
+ 
 
-                        <!-- Formulário -->
-                        <form action="/" method="POST">
-                            <div class="mb-3">
-                                <label for="email" class="form-label">Seu e-mail:</label>
-                                <input type="email" id="email" name="email" class="form-control" placeholder="Digite seu e-mail" required>
-                            </div>
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-primary">Enviar</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+{% block content %}
+{% if not messages|length %}
+	<h2 id="warn" style='color: #ccc'>Ainda não há mensagens</h2>
+{% endif %}
 
-    <!-- Script do Bootstrap -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+{% for x, y, z in messages %}
+	<div class="msg">[{{x}}] {{z}} "{{y}}"</div>
+{% endfor %}
+{% endblock %}
+
+<!-- Send message form -->
+{% block content2 %}
+<div class="message-card">
+
+	<form class="form-group" autocomplete='off' method="POST">
+		<div class="form-group">
+			<input id="username" type="text" readonly class="user form-control-plaintext"
+				 value="Você está logado como {{code}}">
+			<h5>
+				Você está logado como {{ 'adm' if code.startswith('adm-') else code.split('-')[0] }}
+			</h5>
+			<div class="online">
+				<p id="conn" style="font-size: 14px;"><i>Online agora: 0</i></p>
+			</div>
+			<hr style="border-color: grey; margin-bottom: 2rem;">
+			<input type="text" class="message form-control" style="height: 4rem;" placeholder="Mensagem"></textarea>
+		</div>
+		<button id="btn-enviar"class=" btn btn-block">Enviar &nbsp;
+			<i class="fa fa-paper-plane"></i></button>
+	</form>
+
+	<hr style="border-color: grey; margin-top: 2rem; margin-bottom: 2rem;">
+
+	<div class="btn-group btn-block" role="group">
+  		<a href="/chat/{{code}}/history" id="btn-outline-info" class="btn btn-sm"style="width: 50%;">
+  			Minhas mensagens &nbsp;<i class="far fa-folder" style="color: #000000;"></i></a>
+  		<a href="/delete-account/{{code.split('-')[1] if code.startswith('adm-') else code.split('-')[0]}}" id="btn-outline-info" class="btn btn-sm " style="width: 50%;">
+  			Deletar dados &nbsp;<i class="fas fa-ban" style="color: #000000;"></i></a>
+	</div>
+
+</div>
+{% endblock %}

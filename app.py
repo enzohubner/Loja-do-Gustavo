@@ -1,9 +1,28 @@
-from flask import Flask, request, render_template, redirect, jsonify
+import base64
+from datetime import datetime
+import io
+from flask import Flask, request, render_template, redirect, jsonify, send_file, url_for
 import psycopg2
 from psycopg2 import sql
+from flask_socketio import SocketIO
 from db import cursor, conn
+from utils.pdf_generator import create_sales_report_pdf
+from components.database import DataBase
+from components.utilities import *
+
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter, landscape
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
 
 app = Flask(__name__)
+app.config('SECRET_KEY')
+socketio = SocketIO(app)
+
+db = DataBase()
+rooms = {}
+print("teste", rooms, "iniciais")
 
 usuario = " "
 psswd = " "
@@ -53,6 +72,7 @@ def login():
         return jsonify({"message":"Campos incompletos"}), 400
     else:
         return render_template('login.html')
+
 
 @app.route('/altera_usuario', methods=['GET', 'POST'])
 def altera_usuario():
@@ -168,8 +188,9 @@ def excluir_produto():
 @app.route('/navbar', methods=['GET'])
 def altera():
     notificacoes_ativas = ["Notificação 1", "Notificação 2", "Notificação 3"]
+    usuario = "admin"
     
-    return render_template('navbar.html', notificacoes_ativas=notificacoes_ativas)
+    return render_template('navbar.html', notificacoes_ativas=notificacoes_ativas, usuario=usuario)
 
 @app.route('/notificacoes', methods=['GET', 'POST'])
 def notificacoes():
@@ -207,17 +228,226 @@ def contato():
 def configuracao():
     return render_template('configuracoes.html')
 
+PRODUCTS = [
+    {"id": 1, "name": "Alfajor"},
+    {"id": 2, "name": "Bolos"},
+    {"id": 3, "name": "Cookies"},
+    {"id": 4, "name": "Doces"}
+]
+
+# Sample sales data
+SALES_DATA = {
+    "Alfajor": {
+        "2024-01": 50, "2024-02": 75, "2024-03": 100,
+        "2024-04": 120, "2024-05": 90, "2024-06": 130,
+        "2024-07": 140, "2024-08": 145, "2024-09": 130,
+        "2024-10": 110, "2024-11": 90, "2024-12": 110
+    },
+    "Bolos": {
+        "2024-01": 80, "2024-02": 100, "2024-03": 120,
+        "2024-04": 140, "2024-05": 110, "2024-06": 150,
+        "2024-07": 160, "2024-08": 170, "2024-09": 130,
+        "2024-10": 100, "2024-11": 100, "2024-12": 120
+    }
+}
 @app.route('/relatorios', methods=['GET', 'POST'])
 def relatorios():
-    return render_template('relatorios.html')
+    return render_template('relatorios.html', products=PRODUCTS)
 
-@app.route('/login_alternativo', methods=['GET', 'POST'])
-def login_alternativo():
-    return render_template('login_alternativo.html')
+@app.route('/api/sales', methods=['GET'])
+def get_sales():
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+    products = request.args.getlist('products[]')
+    
+    # Convert dates to datetime objects
+    start = datetime.strptime(start_date, '%Y-%m-%d')
+    end = datetime.strptime(end_date, '%Y-%m-%d')
+    
+    # Filter data based on date range and selected products
+    filtered_data = {}
+    for product in products:
+        if product in SALES_DATA:
+            product_data = {}
+            for date, value in SALES_DATA[product].items():
+                date_obj = datetime.strptime(date, '%Y-%m')
+                if start <= date_obj <= end:
+                    product_data[date] = value
+            filtered_data[product] = product_data
+    
+    return jsonify(filtered_data)
 
-@app.route('/cadastro_alternativo', methods=['GET', 'POST'])
-def cadastro_alternativo():
-    return render_template('cadastro_alternativo.html')
+@app.route('/generate-pdf', methods=['POST'])
+def generate_pdf():
+    try:
+        print("entrou")
+        data = request.json
+        
+        chart_image = base64.b64decode(data['chart_image'].split(",")[1])
+        print("ola")
+        pdf = create_sales_report_pdf(
+            chart_image_data=chart_image,
+            start_date=data['start_date'],
+            end_date=data['end_date'],
+            products=data['products']
+        )
+        return send_file(
+            io.BytesIO(pdf),
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=f'relatorio-vendas-{data["start_date"]}-{data["end_date"]}.pdf'
+        )
+    except Exception as e:
+        return jsonify({
+            'error': 'Erro ao gerar PDF',
+            'details': str(e)
+        }), 500
+
+
+@app.route("/adm-chat")
+def adm():
+    client_list = db.get_client_info()
+    return render_template("list_chats.html", client_list=client_list)
+
+@app.route("/chat/<code>", methods=["GET", "POST"])
+@app.route("/chat", methods=["GET", "POST"], defaults={'code': None})
+def chat(code):
+    user = "adm"  # Exemplo de usuário, você pode obter isso de uma sessão ou autenticação
+    adm = "adm"
+
+    if user == "adm" and code is None:
+        return redirect('/adm-chat')
+    
+    if code is None:
+        # Gera um novo código de chat e redireciona diretamente
+        code = f"{user}-{adm}"
+        if not db.table_exists(user):
+            db.create_table(user)
+            db.adm_append(user)
+        return redirect(url_for("chat", code=code))
+    else:
+        # Lógica para a sala de chat
+        if code.startswith("adm-"):
+            user = code.split('-')[1]  # Extrai o nome do usuário após o hífen
+            # Lógica para a sala de chat como administrador
+            raw = db.get(user) if db.table_exists(user) else []
+            #code = f"{user}-adm"
+        else:
+            # Lógica para a sala de chat normal
+            raw = db.get(code.split('-')[0]) if db.table_exists(code.split('-')[0]) else []
+
+        messages = [(x[1], x[2], x[3]) for x in raw]
+    
+        if messages:
+            messages.reverse()
+            age = messages[len(messages)-1][1]
+            count = len(messages)
+        else:
+            age, count = "N/A", "N/A"
+        
+        if code.startswith("adm-"):
+            adm = "adm"
+            return render_template("chat.html", code=code, messages=messages, age=age, count=count, adm=adm)
+        return render_template("chat.html", code=code, messages=messages, age=age, count=count)
+
+
+# renders chat history page
+@app.route("/chat/<code>/history", methods=["GET", "POST"])
+def history(code):
+    if code.startswith("adm-"):
+        raw = db.get(code.split('-')[1])
+    else:
+        raw = db.get(code.split('-')[0])
+    print(raw)
+    print()
+    # Update to handle 4 columns: user, message, date, read
+    messages = [(x[1], x[2], x[3]) for x in raw]
+    print(messages)
+
+    if messages:
+        messages.reverse()
+        age = messages[len(messages)-1][2] # Date is now at index 2
+        count = len(messages)
+    else:
+        age, count = "N/A", "N/A"
+
+    return render_template("history.html", code=code, messages=messages, age=age, count=count)
+
+
+# deletes account and information
+@app.route("/delete-account/<user>")
+def delete(user):
+    global rooms
+    print(rooms)
+    print(user)
+    for room in list(rooms.keys()):
+        if user in rooms[room]:
+            rooms.pop(room)
+    db.adm_drop(user)
+    db.drop_table(user)
+    return redirect("/")
+
+
+
+# method for socket broadcast
+@socketio.on("message")
+def handle_my_custom_event(json):
+    global rooms
+    user, code = json["user"], json["room"]
+
+    
+    if user.startswith("adm-"):
+        user = user.split('-')[1]
+        json.update({"user": "adm"})
+
+    else:
+        user = user.split('-')[0]
+        json.update({"user": user})
+    
+    print("haha")
+    print(json)
+    dnow = datetime.now()
+
+    if code not in rooms:
+        rooms[code] = []
+    if user not in rooms[code]:
+        rooms[code].append(user)
+        
+        print(f"\n[Current connections] {len(rooms[code])}")
+        print(f"[Current users] {rooms[code]}\n")
+
+    print(f"\n[Message received] {json}\n")
+
+    if "data" in json:
+        if json["user"] == "adm":
+            db.append(user, json["data"], dnow.strftime("%d/%m/%Y %H:%M"), "adm")
+        else:
+            db.append(user, json["data"], dnow.strftime("%d/%m/%Y %H:%M"))
+        socketio.emit("relay", json)
+    else:
+        socketio.emit("online now", str(len(rooms[code])))
+
+
+# method for socket disconnection
+@socketio.on("disconnection")
+def handle_disconnection(json):
+	global rooms
+	user, code = json["user"], json["room"]
+	rooms[code].remove(user)
+
+	print("\n[User disconnected]\n")
+
+	if check_empty(rooms, code):
+		rooms.pop(code)
+	else:
+		print(f"\n[Current connections] {len(rooms[code])}")
+		print(f"[Current users] {rooms[code]}\n")
+		print("AHAHAHH")
+
+		socketio.emit("online now", str(len(rooms[code])))
+
+
+
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    socketio.run(app, debug=True)

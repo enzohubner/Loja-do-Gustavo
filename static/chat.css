@@ -1,72 +1,122 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
+div.msg {
+	font-size: 16px;
+    padding: 10px 10px;
+	border-radius: 10px;
+	border-style: solid;
+	border-color: #eee;
+	border-width: 1px;
+	color: #555;
+	margin-bottom: 5px;
+}
+div.mymsg {
+	background-color: #E0FFFF;
+	font-size: 16px;
+    padding: 10px 10px;
+	border-radius: 10px;
+	border-style: solid;
+	border-color: #87CEFA;
+	border-width: 1px;
+	color: #555;
+	margin-bottom: 5px;
 }
 
-.container {
-    background: white;
-    padding: 20px;
+:root {
+	--primary-bg: rgb(235, 209, 198);
+    --primary-color: #ebccb9;
+	--message-bg: #f8f9fa;
+	--border-color: #dee2e6;
+}
+
+.navbar-brand img {
+	height: 30px;
+}
+
+.message-card {
+    background-color: white;
     border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-bottom: 1rem;
+	height: fit-content;
+	max-width: 500px;
+	padding: 1rem;
 }
 
-h1 {
-    color: #333;
+.full-container{
+	max-width: 97%;
+	margin-left: 10px;
+	margin-right: 10px;
+	overflow-y: auto;
 }
 
-form {
-    margin-top: 20px;
+.message-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: bold;
+.message-container {
+	background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-bottom: 1rem;
+	height: 70vh;
+	margin-left: 1rem;
+	padding-top: 20px;
 }
 
-input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+.msg {
+	background-color: var(--message-bg);
+	padding: 1rem;
+	margin-bottom: 0.5rem;
+	border-radius: 8px;
+	border: 1px solid var(--border-color);
 }
 
-button {
-    background-color: #007BFF;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+.user {
+	color: #ffffff !important;
+	font-weight: 500;
 }
 
-button:hover {
-    background-color: #0056b3;
+.online {
+	color: #666;
+	margin-bottom: 1rem;
 }
 
-.messages {
-    list-style: none;
-    padding: 0;
-    margin-bottom: 20px;
+.message.form-control {
+	border-radius: 8px;
+	border: 1px solid var(--border-color);
+	margin-bottom: 1rem;
 }
 
-.messages .success {
-    color: green;
+#btn-enviar {
+	background-color: #ebccb9;;
+	border-color: #ebccb9;
+	color: #2d3748;
+	border-radius: 8px;
 }
 
-.messages .danger {
-    color: red;
+#btn-enviar:hover {
+	background-color: #e0b49e;
+	border-color: #e0b49e;
+}
+#btn-outline-info {
+	color: var(--primary-color);
+	border-color: #e5e7eb;
+	border-radius: 8px;
 }
 
-.messages .warning {
-    color: orange;
+#btn-outline-info:hover {
+	background-color: #f0f9ff;
+	border-color: #0ea5e9;
 }
 
+hr {
+	border-color: #e5e7eb;
+}
 
+#warn {
+	color: #9ca3af !important;
+	text-align: center;
+	padding: 2rem;
+}

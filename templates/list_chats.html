@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chats Admin</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" />
+    <style>
+        .bg-primary-700 {
+            background-color: #E3B7A0;
+        }
+        
+        .bg-primary-700:hover {
+            background-color: #BF9270;
+        }
+
+        .focus\:ring-primary-300:focus {
+            --tw-ring-color: rgba(227, 183, 160, 0.3);
+        }
+
+        .focus\:ring-primary-500:focus {
+            --tw-ring-color: rgba(227, 183, 160, 0.5);
+        }
+
+        .focus\:border-primary-500:focus {
+            border-color: #E3B7A0;
+        }
+
+        .chat-card {
+            transition: all 0.3s ease;
+        }
+
+        .chat-card:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Your existing navbar here -->
+    <nav>
+        <!-- Navbar content -->
+    </nav>
+
+    <div class="container mx-auto px-4 py-8">
+        <!-- Page Title -->
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">Chats Ativos</h1>
+
+        <!-- Search Bar -->
+        <div class="mb-6">
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                    </svg>
+                </div>
+                <input type="search" id="searchChats" class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-primary-500 focus:border-primary-500" placeholder="Buscar chat por nome do cliente...">
+            </div>
+        </div>
+
+        <!-- Chat List -->
+        <div class="grid gap-4" id="chatList">
+            {% for chat in client_list %}
+            <div class="chat-card p-6 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50" data-client-name="{{ chat.client_name.lower() }}">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h5 class="mb-2 text-xl font-bold tracking-tight text-gray-900">{{ chat.client_name }}</h5>
+                        <p class="text-sm text-gray-600">Última mensagem: {{ chat.last_message_time }}</p>
+                        <p class="text-sm text-gray-500">{{ chat.last_message }}</p>
+                    </div>
+                    <a href="/chat/adm-{{chat.client_name}}" class="px-4 py-2 text-sm font-medium text-center text-white bg-primary-700 rounded-lg hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300">
+                        Acessar
+                    </a>
+                </div>
+                <div class="mt-4 flex items-center">
+                    {% if chat.unread_messages > 0 %}
+                    <span class="bg-red-100 text-red-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">
+                        {{ chat.unread_messages }} mensagens não lidas
+                    </span>
+                    {% endif %}
+                    <span class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">
+                        ID: {{ chat.id }}
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
+    <script>
+        // Search functionality
+        document.getElementById('searchChats').addEventListener('input', function(e) {
+            const searchValue = e.target.value.toLowerCase();
+            const chatCards = document.querySelectorAll('.chat-card');
+            
+            chatCards.forEach(card => {
+                const clientName = card.getAttribute('data-client-name');
+                if (clientName.includes(searchValue)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

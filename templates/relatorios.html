@@ -1,53 +1,127 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relatório</title>
-    <!-- Flowbite CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.7.0/flowbite.min.css" rel="stylesheet">
-    <!-- Tailwind CSS (Flowbite dependency) -->
+    <title>Relatório de Vendas</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" type="text/css" href="/static/navbar.css">
-
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <link href="/static/relatorio.css" rel="stylesheet" />
+    
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-50">
+    
+    <header class="sticky-top">
+        {% include 'navbar.html' %}
+    </header>
 
-    <!-- Navbar Import -->
-    <div id="navbar" class="sticky-top">
-    {% include 'navbar.html' %}
-    </div>
+    <div class="container mx-auto px-4 py-8">
+        <!-- Filters Card -->
+        <div class="bg-white p-6 rounded-xl shadow-lg mb-6 border border-gray-100">
+            <h2 class="text-xl font-semibold text-gray-800 mb-6">Filtros do Relatório</h2>
+            <form id="reportForm" class="space-y-6">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Date Range Section -->
+                    <div class="space-y-4">
+                        <div>
+                            <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Data Inicial</label>
+                            <div class="relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                                </div>
+                                <input type="date" id="start_date" name="start_date" 
+                                    class="block w-full rounded-lg border-gray-300 pl-10 focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">Data Final</label>
+                            <div class="relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y1="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                                </div>
+                                <input type="date" id="end_date" name="end_date" 
+                                    class="block w-full rounded-lg border-gray-300 pl-10 focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                            </div>
+                        </div>
+                    </div>
 
-    <!-- Container Principal -->
-    <div class="container mx-auto mt-5">
-    <h1 class="text-2xl font-bold text-center text-gray-800">Relatório</h1>
+                    <!-- Products Selection -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Produtos</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.91 8.84 8.56 2.23a1.93 1.93 0 0 0-1.81 0L3.1 4.13a2.12 2.12 0 0 0-.05 3.69l12.22 6.93a2 2 0 0 0 1.94 0L21 12.51a2.12 2.12 0 0 0-.09-3.67Z"/><path d="m3.09 8.84 12.35-6.61a1.93 1.93 0 0 1 1.81 0l3.65 1.9a2.12 2.12 0 0 1 .1 3.69L8.73 14.75a2 2 0 0 1-1.94 0L3 12.51a2.12 2.12 0 0 1 .09-3.67Z"/><line x1="12" y1="22" x2="12" y2="13"/></svg>
+                            </div>
+                            <select id="products" name="products" multiple
+                                    class="select2-multiple pl-10">
+                                {% for product in products %}
+                                <option value="{{ product.name }}">{{ product.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
 
-    <!-- Filtros -->
-    <div class="flex items-center justify-between p-4 mt-5 rounded-lg shadow-md" id="not-collapse">
-        <div class="flex items-center space-x-3">
-        <label for="dateFilter" class="font-medium text-white">DATA:</label>
-        <input type="date" id="dateFilter" class="border border-gray-300 rounded-lg p-2 text-sm">
+                <!-- Submit Button -->
+                <div class="flex justify-end">
+                    <button type="submit" 
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 15h-6"/></svg>
+                        Gerar Relatório
+                    </button>
+                    <button type="button" 
+                            onclick="generatePDF()"
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors ml-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Baixar PDF
+                    </button>
+                </div>
+            </form>
         </div>
-        <div class="flex items-center space-x-3">
-        <select id="filterDropdown" class="border border-gray-300 rounded-lg p-2 text-sm">
-            <option>Filtrar</option>
-            <option>Opção 1</option>
-            <option>Opção 2</option>
-        </select>
-        <button class="bg-brown-600 text-white rounded-lg px-4 py- text-sm hover:bg-brown-700">Buscar</button>
+
+        <!-- Chart Card -->
+        <div class="card-filtros bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+            <canvas id="salesChart"></canvas>
         </div>
     </div>
 
-    <!-- Gráfico -->
-    <div class="bg-white p-6 mt-5 rounded-lg shadow-md">
-        <canvas id="relatorioChart"></canvas>
-    </div>
-    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+    <script src="/static/js/chart.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Initialize Select2 with custom theme
+            $('.select2-multiple').select2({
+                theme: 'custom',
+                placeholder: "Selecione os produtos",
+                allowClear: true,
+                width: '100%',
+                language: {
+                    noResults: () => "Nenhum produto encontrado",
+                    searching: () => "Buscando...",
+                }
+            });
 
-    <!-- Flowbite JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.7.0/flowbite.min.js"></script>
-    <script src="/static/js/relatorio.js"></script>
+            // Initialize chart and default values
+            initializeChart();
+
+            // Form submission handler
+            document.getElementById('reportForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const startDate = document.getElementById('start_date').value;
+                const endDate = document.getElementById('end_date').value;
+                const products = Array.from(document.getElementById('products').selectedOptions).map(option => option.value);
+                
+                const data = await fetchSalesData(startDate, endDate, products);
+                if (data) {
+                    updateChart(data);
+                }
+            });
+        });
+    </script>
 </body>
 </html>

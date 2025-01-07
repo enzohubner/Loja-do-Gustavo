@@ -12,17 +12,22 @@
     text-decoration: none;
 }
 
-.btn-acessar, .btn-search, .btn-save, .btn-cancel{
+.btn-save {
+    background-color: var(--secondary-color);
+}
+
+.btn-cancel {
+    background-color: var(--danger-color);
+}
+
+.btn-acessar, .btn-search{
     background-color: var(--primary-color);
-    border: none;
 }
 
-.btn-acessar:hover, .btn-search:hover, .btn-save:hover, .btn-cancel:hover {
-    background-color: #d4b7a5;
-    cursor: pointer;
+.btn-acessar:hover, .btn-search:hover{
+    background-color: #b19a8c;
 }
 
-.bod
 
 .card-edit {
     display: flex;

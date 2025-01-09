@@ -34,7 +34,7 @@ class DataBase(object):
 				last_msg = self.cursor.fetchone()
 				
 				
-				unread_command = f"SELECT COUNT(*) FROM {client_user}_table"
+				unread_command = f"SELECT COUNT(*) FROM {client_user}_table WHERE read = 0 AND user != 'admin'"
 				self.cursor.execute(unread_command)
 				unread_count = self.cursor.fetchone()[0]
 				
@@ -91,3 +91,8 @@ class DataBase(object):
 		command = "SELECT name FROM sqlite_master WHERE type='table' AND name=?"
 		self.cursor.execute(command, (f"{user}_table",))
 		return self.cursor.fetchone() is not None
+
+	def update_message_status(self, user, id):
+		command = f"UPDATE {user}_table SET read = 1 WHERE id = ?"
+		self.cursor.execute(command, (id,))
+		self.connection.commit()

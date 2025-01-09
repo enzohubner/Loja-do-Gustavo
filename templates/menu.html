@@ -160,9 +160,13 @@
             // Função para filtrar produtos
             function filterProducts(searchTerm) {
                 const products = document.querySelectorAll('.product-card');
+                searchTerm = searchTerm.toLowerCase().trim();
+                
                 products.forEach(product => {
                     const productName = product.querySelector('h5').textContent.toLowerCase();
-                    if (productName.includes(searchTerm.toLowerCase())) {
+                    
+                    // Simple includes check without splitting words
+                    if (productName.includes(searchTerm) || searchTerm === '') {
                         product.classList.remove('hidden-element');
                     } else {
                         product.classList.add('hidden-element');

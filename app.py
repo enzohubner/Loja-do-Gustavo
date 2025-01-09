@@ -1,7 +1,7 @@
 import base64
-from datetime import datetime
+from datetime import datetime, timedelta
 import io
-from flask import Flask, request, render_template, redirect, jsonify, send_file, url_for
+from flask import Flask, flash, request, render_template, redirect, jsonify, send_file, url_for
 import psycopg2
 from psycopg2 import sql
 from flask_socketio import SocketIO
@@ -10,6 +10,9 @@ from utils.pdf_generator import create_sales_report_pdf
 from components.database import DataBase
 from components.utilities import *
 
+from flask_mail import Mail, Message
+from itsdangerous import URLSafeTimedSerializer
+
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter, landscape
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
@@ -17,12 +20,19 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 
 app = Flask(__name__)
-app.config('SECRET_KEY')
-socketio = SocketIO(app)
+app.config['SECRET_KEY'] = '@teste22@.22'
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'cakesbigusta@gmail.com'  # Seu email
+app.config['MAIL_PASSWORD'] = 'nzep gpkv jgii wygq'
 
+mail = Mail(app)
+serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+
+socketio = SocketIO(app)
 db = DataBase()
 rooms = {}
-print("teste", rooms, "iniciais")
 
 usuario = " "
 psswd = " "
@@ -307,6 +317,7 @@ def generate_pdf():
 @app.route("/adm-chat")
 def adm():
     client_list = db.get_client_info()
+    print(client_list)
     return render_template("list_chats.html", client_list=client_list)
 
 @app.route("/chat/<code>", methods=["GET", "POST"])
@@ -331,6 +342,12 @@ def chat(code):
             user = code.split('-')[1]  # Extrai o nome do usuário após o hífen
             # Lógica para a sala de chat como administrador
             raw = db.get(user) if db.table_exists(user) else []
+            print(raw)
+            # Update unread messages to read in the database
+            for message in raw:
+                if message[4] == 0:  # if message is unread
+                    db.update_message_status(user, message[0])  # message[0] should be the message ID
+            
             #code = f"{user}-adm"
         else:
             # Lógica para a sala de chat normal
@@ -447,6 +464,77 @@ def handle_disconnection(json):
 		socketio.emit("online now", str(len(rooms[code])))
 
 
+users_db = {
+    'enzonsei@gmail.com': {
+        'password': 'senha123'
+    }
+}
+
+@app.route('/esqueceu-senha', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        
+        if email in users_db:
+            # Gera token com validade de 1 hora
+            token = serializer.dumps(email, salt='recover-key')
+            
+            # Cria o link de recuperação
+            recover_url = url_for(
+                'reset_password',
+                token=token,
+                _external=True
+            )
+            
+            # Configura o email
+            msg = Message(
+                'Recuperação de Senha',
+                sender=app.config['MAIL_USERNAME'],
+                recipients=[email]
+            )
+            
+            msg.body = f'''Para redefinir sua senha, visite o seguinte link:
+            {recover_url}
+            
+            Se você não solicitou a redefinição de senha, ignore este email.
+            
+            O link é válido por 1 hora.
+            '''
+            
+            # Envia o email
+            mail.send(msg)
+            
+            flash('Um email com instruções foi enviado para você!', 'success')
+            return redirect(url_for('forgot_password'))
+        
+        flash('Email não encontrado.', 'error')
+    
+    return render_template('forgot_password.html')
+
+@app.route('/redefinir-senha/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    try:
+        # Verifica se o token é válido e não expirou (3600 segundos = 1 hora)
+        email = serializer.loads(token, salt='recover-key', max_age=3600)
+    except:
+        flash('O link de recuperação é inválido ou expirou.', 'error')
+        return redirect(url_for('forgot_password'))
+    
+    if request.method == 'POST':
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+        
+        if password != confirm_password:
+            flash('As senhas não coincidem.', 'error')
+            return render_template('reset_password.html')
+        
+        # Atualiza a senha no "banco de dados"
+        users_db[email]['password'] = password
+        
+        flash('Sua senha foi atualizada com sucesso!', 'success')
+        return redirect(url_for('login'))
+    
+    return render_template('reset_password.html')
 
 
 if __name__ == '__main__':

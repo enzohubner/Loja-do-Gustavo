@@ -12,35 +12,35 @@
     <div class="text-center">
       <img src="/static/png-logo-black.png" alt="Logo" class="logo">
     </div>
-    <form>
+    <form method="post">
       <!-- Nome -->
       <div class="mb-3" >
-        <input type="text" class="form-control" id="nome" placeholder="Digite seu nome" required>
+        <input type="text" class="form-control" name="nome" id="nome" placeholder="Digite seu nome" required>
       </div>
       
       <!-- Escola -->
       <div class="mb-3">
-        <input type="text" class="form-control" id="escola" placeholder="Digite o nome da escola" required>
+        <input type="text" class="form-control" name="escola" id="escola" placeholder="Digite o nome da escola" required>
       </div>
 
       <!-- Email -->
       <div class="mb-3">
-        <input type="email" class="form-control" id="email" placeholder="Digite seu email" required>
+        <input type="email" class="form-control" name="email" id="email" placeholder="Digite seu email" required>
       </div>
 
       <!-- Telefone -->
       <div class="mb-3">
-        <input type="tel" class="form-control" id="telefone" placeholder="Digite seu telefone" required>
+        <input type="tel" class="form-control" name="telefone" id="telefone" placeholder="Digite seu telefone" required>
       </div>
 
       <!-- Senha -->
       <div class="mb-3">
-        <input type="password" class="form-control" id="senha" placeholder="Digite sua senha" required>
+        <input type="password" class="form-control" name="senha" id="senha" placeholder="Digite sua senha" required>
       </div>
 
       <!-- Confirmar Senha -->
       <div class="mb-3">
-        <input type="password" class="form-control" id="confirmeSenha" placeholder="Confirme sua senha" required>
+        <input type="password" class="form-control" name="confirmeSenha" id="confirmeSenha" placeholder="Confirme sua senha" required>
       </div>
       
       <a href="/login" class="forgot-password">Já tem cadastro?</a>

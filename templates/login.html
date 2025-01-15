@@ -12,13 +12,13 @@
     <div class="card">
         <img src="/static/png-logo-black.png" alt="SISDM Logo" class="logo" style="width: 45%">
         
-        <form>
+        <form method="post">
             <div class="mb-3">
-                <input type="email" class="form-control" placeholder="Email" required>
+                <input type="email" class="form-control" name="email" placeholder="Email" required>
             </div>
 
             <div class="mb-3 position-relative">
-                <input type="password" class="form-control" id="password" placeholder="Senha" required>
+                <input type="password" class="form-control" name="senha" id="password" placeholder="Senha" required>
                 <button type="button" class="btn btn-link position-absolute end-0 top-0 mt-2 me-2" style="color: black; text-decoration: none;" onclick="togglePasswordVisibility()">Mostrar</button>
             </div>
 

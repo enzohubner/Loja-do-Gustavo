@@ -2,6 +2,7 @@ import base64
 from datetime import datetime, timedelta
 import io
 from flask import Flask, flash, request, render_template, redirect, jsonify, send_file, url_for
+from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 import psycopg2
 from psycopg2 import sql
 from flask_socketio import SocketIO
@@ -34,9 +35,26 @@ socketio = SocketIO(app)
 db = DataBase()
 rooms = {}
 
-usuario = " "
-psswd = " "
-# equanto n implemento flask-login
+app = Flask(__name__)
+app.secret_key = '1234'
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+class Usuario(UserMixin):
+    def __init__(self, id, nome, email):
+        self.id = id
+        self.nome = nome
+        self.email = email
+
+@login_manager.user_loader
+def load_user(id_usuario):
+    cursor.execute("SELECT id, nome, email FROM usuarios WHERE id = %s", (id_usuario,))
+    dados_usuario = cursor.fetchone()
+    if dados_usuario:
+        return Usuario(id=dados_usuario[0], nome=dados_usuario[1], email=dados_usuario[2])
+    return None
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -44,13 +62,17 @@ def index():
         nome = request.form['nome']
         email = request.form['email']
         senha = request.form['senha']
+        senha2 = request.form['confirmeSenha']
         
-        inserir_query = "INSERT INTO usuarios (nome, email, senha) VALUES (%s, %s, %s)"
-        cursor.execute(inserir_query, (nome, email, senha))
-        cursor.close()
-        conn.close()
+        if senha == senha2:
+            inserir_query = "INSERT INTO usuarios (nome, email, senha) VALUES (%s, %s, %s)"
+            cursor.execute(inserir_query, (nome, email, senha))
+            cursor.close()
+            conn.close()
 
-        return redirect('/')
+            return redirect('/menu')
+        else:
+            return jsonify({"message":"Credenciais invalidas"}), 400
     else:
         return render_template('cadastro.html')
     
@@ -61,25 +83,20 @@ def login():
         senha = request.form['senha']
 
         if email and senha:
-            cursor.execute(f"SELECT * FROM usuarios WHERE email = '{email}'")
-            rows = cursor.fetchall()
+            cursor.execute("SELECT id, nome, email, senha FROM usuarios WHERE email = %s", (email,))
+            dados_usuario = cursor.fetchone()
 
-            print(rows)
-            
-            global usuario 
-            usuario = rows[0][2]
+            if dados_usuario and dados_usuario[3] == senha:  # Substituir por hashing seguro posteriormente
+                user = Usuario(id=dados_usuario[0], nome=dados_usuario[1], email=dados_usuario[2])
+                login_user(user)
+                flash('Login realizado com sucesso!', 'success')
+                return redirect(url_for('menu'))
+            else:
+                flash('Credenciais inválidas. Tente novamente.', 'danger')
+                return redirect(url_for('login'))
 
-            if rows and rows[0][3] == senha:
-                global psswd
-                psswd = senha
-                return render_template('menu.html')  
-                   
-            return jsonify({"message":"Credenciais invalidas"}), 400
-        
-        cursor.close()
-        conn.close()
-
-        return jsonify({"message":"Campos incompletos"}), 400
+        flash('Campos incompletos. Tente novamente.', 'danger')
+        return redirect(url_for('login'))
     else:
         return render_template('login.html')
 
@@ -87,23 +104,26 @@ def login():
 @app.route('/altera_usuario', methods=['GET', 'POST'])
 def altera_usuario():
     if request.method == 'POST':
-        global usuario, psswd
-        senhaAntiga = request.form['senhaAntiga']  
-        email_antigo = usuario
         nome = request.form['nome']
+        senha_antiga = request.form['senhaAntiga']  
         email_novo = request.form['email']
-        novaSenha = request.form['novaSenha']
+        senha_nova = request.form['novaSenha']
 
-        if senhaAntiga == psswd:
-            cursor.execute("UPDATE usuarios SET nome = %s, email = %s, senha = %s WHERE email = %s",(nome, email_novo, novaSenha, email_antigo))
+        email = current_user.email
+        cursor.execute("SELECT senha FROM usuarios WHERE email = %s", (email,))
+        senha = cursor.fetchone()
+
+        if senha_antiga == senha[0]: 
+            cursor.execute("UPDATE usuarios SET nome = %s, email = %s, senha = %s WHERE email = %s", (nome, email_novo, senha_nova, email))
             conn.commit()
             return jsonify({"message": "Alterações salvas com sucesso!"}), 200
         else:
             return jsonify({"message": "Senha antiga incorreta"}), 400
     else:
         usuario = {
-            'id': 'usuario',
-            'email': 'usuario@',
+            'id': current_user.id,
+            'email': current_user.email,
+            'nome': current_user.nome,
             'telefone': '99999-9999',
             'escola': 'Escola XYZ'
         }
@@ -152,11 +172,7 @@ def lista_produtos():
 
 @app.route('/editar_produto/<int:id>', methods=['GET', 'POST'])
 def editar_produto(id):
-    cursor.execute("SELECT * FROM produtos WHERE id=%s", (id,))
-    produto = cursor.fetchone()
-
     if request.method == 'POST':
-
         id = request.form['codigo']  
         nome = request.form['nome'] 
         valor = request.form['valor']
@@ -179,6 +195,18 @@ def editar_produto(id):
         else:
             return jsonify({"message": "Campos incompletos"}), 400 
     else:
+        cursor.execute("SELECT * FROM produtos WHERE id=%s", (id,))
+        produto_db = cursor.fetchone()
+
+        produto = {
+            "id": produto_db[0],
+            "nome": produto_db[1],
+            "descricao": str(produto_db[3]),
+            "preco": float(produto_db[2]),
+            "quantidade": int(produto_db[0]),
+            "imagem": "/static/png-logo-black.png"
+        }
+        print(produto)
         return render_template('editar_produto.html', produto=produto)
 
 @app.route('/excluir_produto', methods=['POST'])
@@ -208,14 +236,20 @@ def notificacoes():
 
 @app.route('/menu', methods=['GET', 'POST'])
 def menu():
-    produtos = [
-        {"id": 1, "nome": "Produto A", "descricao": "Descrição do Produto A", "preco": 10.99, "quantidade": 100, "imagem":'/static/png-logo-black.png'},
-        {"id": 2, "nome": "Produto B", "descricao": "Descrição do Produto B", "preco": 20.99, "quantidade": 200},
-        {"id": 3, "nome": "Produto C", "descricao": "Descrição do Produto C", "preco": 30.99, "quantidade": 300},
-        {"id": 4, "nome": "Produto D", "descricao": "Descrição do Produto D", "preco": 40.99, "quantidade": 400},
-        {"id": 5, "nome": "Produto E", "descricao": "Descrição do Produto E", "preco": 50.99, "quantidade": 500},
-        {"id": 6, "nome": "Produto F", "descricao": "Descrição do Produto E", "preco": 50.99, "quantidade": 500}
-    ]
+    cursor.execute("SELECT * FROM produtos")
+    produtos_db = cursor.fetchall()
+    
+    produtos = []
+
+    for i, item in enumerate(produtos_db, start=1):
+        produtos.append({
+            "id": item[0],
+            "nome": item[1].capitalize(),
+            "descricao": str(item[3]),
+            "preco": float(item[2]),
+            "quantidade": int(item[0]),
+            "imagem": "/static/png-logo-black.png"
+        })
 
     user= {'role' : 'admin'}
 

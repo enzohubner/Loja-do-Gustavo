@@ -3,7 +3,9 @@ import psycopg2
 from psycopg2 import sql
 from db import cursor, conn
 
-cursor.execute("SELECT * from produtos")
+cursor.execute("INSERT INTO produtos (nome, valor, descricao) VALUES ('produtob', '1234', 'testeb')")
+
+cursor.execute("SELECT * FROM produtos")
 usuarios = cursor.fetchall()
 print(usuarios)
 """

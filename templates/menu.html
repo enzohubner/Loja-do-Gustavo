@@ -59,6 +59,7 @@
                         <div class="product-info">
                             <h5 class="text-xl font-semibold mb-2">{{ produto.nome }}</h5>
                             <p class="text-gray-600 mb-1">VALOR: {{ produto.preco }}</p>
+                            <p class="text-gray-600 mb-1">DESCRIÇÃO: {{ produto.descricao }}</p>
                         </div>
                         <div class="product-actions">
                             {% if user.role == 'admin' %}

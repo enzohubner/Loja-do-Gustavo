@@ -55,17 +55,17 @@
                                         <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
                                     </svg>
                                     {% if notificacoes_ativas|length > 0 %}
-                                        <span class="notification-count position-absolute top-0 start-100 translate-middle" style="transform: translate(-75%, -50%);">{{ notificacoes|length }}</span>
+                                        <span class="notification-count position-absolute top-0 start-100 translate-middle" style="transform: translate(-75%, -50%);">{{ notificacoes_ativas|length }}</span>
                                     {% endif %}
                                 </a>
-                                <ul class="dropdown-menu" aria-labelledby="notificacoesDropdown">
-                                    {% for notificacao, permission in notificacoes%}
-                                            <li><a class="dropdown-item" id="itens">{{ notificacao }}</a></li>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificacoesDropdown">
+                                    {% for notificacao in notificacoes_ativas%}
+                                            <li><a class="dropdown-item" id="itens">{{ notificacao[1] }}</a></li>
                                     {% endfor %}
-                                    {% if notificacoes|length > 0 %}
-                                        <li><div class="dropdown-divider"></div></li>
-                                    {% endif %}
-                                    {% if usuario == 'admin' %}
+                                    {% if user.role == 'admin' %}
+                                        {% if notificacoes_ativas|length > 0 %}
+                                            <li><div class="dropdown-divider"></div></li>
+                                        {% endif %}
                                         <li><a class="dropdown-item" href="/notificacoes" id="itens">Adicionar Notificação</a></li>
                                     {% endif %}
                                 </ul>

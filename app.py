@@ -1,12 +1,12 @@
 import base64
 from datetime import datetime, timedelta
 import io
-from flask import Flask, flash, request, render_template, redirect, jsonify, send_file, url_for
+from flask import Flask, flash, g, request, render_template, redirect, jsonify, send_file, url_for
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
-import psycopg2
 from psycopg2 import sql
 from flask_socketio import SocketIO
 from db import cursor, conn
+from utils.bd_functions import get_notificacoes, get_produtos, get_vendas
 from utils.pdf_generator import create_sales_report_pdf
 from components.database import DataBase
 from components.utilities import *
@@ -43,17 +43,26 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 class Usuario(UserMixin):
-    def __init__(self, id, nome, email):
+    def __init__(self, id, nome, email, role, telefone, escola):
         self.id = id
         self.nome = nome
         self.email = email
+        self.role = role
+        self.telefone = telefone
+        self.escola = escola
 
 @login_manager.user_loader
 def load_user(id_usuario):
-    cursor.execute("SELECT id, nome, email FROM usuarios WHERE id = %s", (id_usuario,))
+    cursor.execute("SELECT id, nome, email, role, telefone, escola FROM usuarios WHERE id = %s", (id_usuario,))
     dados_usuario = cursor.fetchone()
+    print(dados_usuario)
     if dados_usuario:
-        return Usuario(id=dados_usuario[0], nome=dados_usuario[1], email=dados_usuario[2])
+        return Usuario(id=dados_usuario[0], 
+                      nome=dados_usuario[1], 
+                      email=dados_usuario[2], 
+                      role=dados_usuario[3],
+                      telefone=dados_usuario[4],
+                      escola=dados_usuario[5])
     return None
 
 @app.route('/', methods=['GET', 'POST'])
@@ -61,16 +70,17 @@ def index():
     if request.method == 'POST':
         nome = request.form['nome']
         email = request.form['email']
+        telefone = request.form['telefone']
+        escola = request.form['escola']
         senha = request.form['senha']
         senha2 = request.form['confirmeSenha']
-        
-        if senha == senha2:
-            inserir_query = "INSERT INTO usuarios (nome, email, senha) VALUES (%s, %s, %s)"
-            cursor.execute(inserir_query, (nome, email, senha))
-            cursor.close()
-            conn.close()
+        role = 'user'
 
-            return redirect('/menu')
+        if senha == senha2:
+            inserir_query = "INSERT INTO usuarios (nome, email, senha, telefone, escola,role) VALUES (%s, %s, %s, %s, %s,%s)"
+            cursor.execute(inserir_query, (nome, email, senha, telefone, escola, role))
+            conn.commit()
+            return redirect('/login')
         else:
             return jsonify({"message":"Credenciais invalidas"}), 400
     else:
@@ -87,7 +97,7 @@ def login():
             dados_usuario = cursor.fetchone()
 
             if dados_usuario and dados_usuario[3] == senha:  # Substituir por hashing seguro posteriormente
-                user = Usuario(id=dados_usuario[0], nome=dados_usuario[1], email=dados_usuario[2])
+                user = Usuario(id=dados_usuario[0], nome=dados_usuario[1], email=dados_usuario[2], role=dados_usuario[3])
                 login_user(user)
                 flash('Login realizado com sucesso!', 'success')
                 return redirect(url_for('menu'))
@@ -100,9 +110,17 @@ def login():
     else:
         return render_template('login.html')
 
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
+
 
 @app.route('/altera_usuario', methods=['GET', 'POST'])
+@login_required
 def altera_usuario():
+    user = {"role": current_user.role}
     if request.method == 'POST':
         nome = request.form['nome']
         senha_antiga = request.form['senhaAntiga']  
@@ -125,9 +143,10 @@ def altera_usuario():
             'email': current_user.email,
             'nome': current_user.nome,
             'telefone': '99999-9999',
-            'escola': 'Escola XYZ'
+            'escola': 'Escola XYZ',
+            'role': current_user.role
         }
-        return render_template('altera_usuario.html', usuario=usuario)
+        return render_template('altera_usuario.html', usuario=usuario, user=user)
 
 
 @app.route('/deleta_usuario', methods=['POST'])
@@ -222,7 +241,6 @@ def excluir_produto():
     else:
         return render_template('excluir_produto.html')
 
-
 @app.route('/navbar', methods=['GET'])
 def altera():
     notificacoes_ativas = ["Notificação 1", "Notificação 2", "Notificação 3"]
@@ -235,6 +253,7 @@ def notificacoes():
     return render_template('notificacoes.html')
 
 @app.route('/menu', methods=['GET', 'POST'])
+@login_required
 def menu():
     cursor.execute("SELECT * FROM produtos")
     produtos_db = cursor.fetchall()
@@ -251,18 +270,10 @@ def menu():
             "imagem": "/static/png-logo-black.png"
         })
 
-    user= {'role' : 'admin'}
+    user={"role":current_user.role}
+    notificacoes_ativas = get_notificacoes(current_user.id)    
 
-    return render_template('menu.html', produtos=produtos, user=user)
-
-@app.route('/navbar_alternativa', methods=['GET', 'POST'])
-def navbar_alternativa():
-    notificacoes_ativas = [
-        {"notificacao": "Notificação 1", "permissao":'admin'},
-        {"notificacao": "Notificação 2", "permissao":'funcionario'},
-        {"notificacao": "Notificação 3", "permissao":'usuario'}]
-    role = 'admin'
-    return render_template('navbar_alternativa.html', role=role, notificacoes_ativas=notificacoes_ativas)
+    return render_template('menu.html', produtos=produtos, user=user, notificacoes_ativas=notificacoes_ativas)
 
 @app.route('/contato', methods=['GET', 'POST'])
 def contato():
@@ -270,9 +281,10 @@ def contato():
 
 @app.route('/configuracao', methods=['GET', 'POST'])
 def configuracao():
-    return render_template('configuracoes.html')
+    user = {"role": current_user.role}
+    return render_template('configuracoes.html', user=user)
 
-PRODUCTS = [
+products = [
     {"id": 1, "name": "Alfajor"},
     {"id": 2, "name": "Bolos"},
     {"id": 3, "name": "Cookies"},
@@ -280,7 +292,7 @@ PRODUCTS = [
 ]
 
 # Sample sales data
-SALES_DATA = {
+sales = {
     "Alfajor": {
         "2024-01": 50, "2024-02": 75, "2024-03": 100,
         "2024-04": 120, "2024-05": 90, "2024-06": 130,
@@ -296,14 +308,17 @@ SALES_DATA = {
 }
 @app.route('/relatorios', methods=['GET', 'POST'])
 def relatorios():
-    return render_template('relatorios.html', products=PRODUCTS)
+    user = {"role": current_user.role}
+    products = get_produtos()
+    return render_template('relatorios.html', products=products, user=user, sales=sales)
 
 @app.route('/api/sales', methods=['GET'])
 def get_sales():
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
     products = request.args.getlist('products[]')
-    
+    sales = get_vendas()
+
     # Convert dates to datetime objects
     start = datetime.strptime(start_date, '%Y-%m-%d')
     end = datetime.strptime(end_date, '%Y-%m-%d')
@@ -311,9 +326,9 @@ def get_sales():
     # Filter data based on date range and selected products
     filtered_data = {}
     for product in products:
-        if product in SALES_DATA:
+        if product in sales:
             product_data = {}
-            for date, value in SALES_DATA[product].items():
+            for date, value in sales[product].items():
                 date_obj = datetime.strptime(date, '%Y-%m')
                 if start <= date_obj <= end:
                     product_data[date] = value
@@ -349,10 +364,12 @@ def generate_pdf():
 
 
 @app.route("/adm-chat")
+@login_required
 def adm():
     client_list = db.get_client_info()
     print(client_list)
-    return render_template("list_chats.html", client_list=client_list)
+    user = {"role": current_user.role}
+    return render_template("list_chats.html", client_list=client_list, user=user)
 
 @app.route("/chat/<code>", methods=["GET", "POST"])
 @app.route("/chat", methods=["GET", "POST"], defaults={'code': None})
@@ -569,6 +586,15 @@ def reset_password(token):
         return redirect(url_for('login'))
     
     return render_template('reset_password.html')
+
+def navbar_info():
+    usuario = {
+        "id": current_user.id,
+        "role": current_user.role
+        }
+    cursor.execute("SELECT * FROM notificacoes WHERE usuario = %s", (usuario["id"], ))
+    notificacoes_ativas = cursor.fetchall()
+    return usuario, notificacoes_ativas
 
 
 if __name__ == '__main__':

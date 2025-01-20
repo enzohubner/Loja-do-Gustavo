@@ -10,7 +10,9 @@
 <body class="bg-gray-50">
     <!-- Header Section -->
     <header class="sticky-top">
-        {% include 'navbar.html'%}
+        {% with %}
+            {% include 'navbar.html' with context %}
+        {% endwith %}
     </header>
 
     <!-- Main Content Section -->

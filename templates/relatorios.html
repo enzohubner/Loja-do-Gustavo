@@ -90,6 +90,10 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+    <script type="text/javascript">
+        const productsData = JSON.parse('{{ products | tojson | safe }}');
+        const sales = JSON.parse('{{ sales | tojson | safe }}');
+    </script>
     <script src="/static/js/chart.js"></script>
     <script>
         $(document).ready(function() {

@@ -93,11 +93,18 @@ def login():
         senha = request.form['senha']
 
         if email and senha:
-            cursor.execute("SELECT id, nome, email, senha FROM usuarios WHERE email = %s", (email,))
+            cursor.execute("SELECT id, nome, email, role, telefone, escola FROM usuarios WHERE email = %s", (email,))
             dados_usuario = cursor.fetchone()
+            print(dados_usuario, dados_usuario[3], senha)
 
             if dados_usuario and dados_usuario[3] == senha:  # Substituir por hashing seguro posteriormente
-                user = Usuario(id=dados_usuario[0], nome=dados_usuario[1], email=dados_usuario[2], role=dados_usuario[3])
+                print("passou")
+                user =  Usuario(id=dados_usuario[0], 
+                      nome=dados_usuario[1], 
+                      email=dados_usuario[2], 
+                      role=dados_usuario[3],
+                      telefone=dados_usuario[4],
+                      escola=dados_usuario[5])
                 login_user(user)
                 flash('Login realizado com sucesso!', 'success')
                 return redirect(url_for('menu'))

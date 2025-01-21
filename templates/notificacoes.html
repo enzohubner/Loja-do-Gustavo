@@ -15,12 +15,12 @@
     <!-- Main container for the form -->
     <div class="container-fluid vh-100 d-flex flex-column justify-content-center align-items-center" id="b-container">
         <!-- Notification form -->
-        <form style="width: 70%" class="bg-white p-4 rounded shadow">
+        <form style="width: 70%" class="bg-white p-4 rounded shadow" method="POST">
             <h2 class="text-center text-brown">Adicionar Notificação</h2>
             <!-- Message input field -->
             <div class="form-group">
                 <label for="mensagem">Mensagem</label>
-                <textarea class="form-control" id="mensagem" placeholder="Escreva o texto da notificação" rows="3" required></textarea>
+                <textarea class="form-control" name="mensagem" id="mensagem" placeholder="Escreva o texto da notificação" rows="3" required></textarea>
             </div>
             <!-- Buttons for user and employee -->
             <div class="form-group text-center">

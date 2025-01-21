@@ -43,26 +43,28 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 class Usuario(UserMixin):
-    def __init__(self, id, nome, email, role, telefone, escola):
+    def __init__(self, id, nome, email, senha, role, telefone, escola):
         self.id = id
         self.nome = nome
         self.email = email
+        self.senha = senha
         self.role = role
         self.telefone = telefone
         self.escola = escola
 
 @login_manager.user_loader
 def load_user(id_usuario):
-    cursor.execute("SELECT id, nome, email, role, telefone, escola FROM usuarios WHERE id = %s", (id_usuario,))
+    cursor.execute("SELECT id, nome, email, senha, role, telefone, escola FROM usuarios WHERE id = %s", (id_usuario,))
     dados_usuario = cursor.fetchone()
     print(dados_usuario)
     if dados_usuario:
         return Usuario(id=dados_usuario[0], 
                       nome=dados_usuario[1], 
                       email=dados_usuario[2], 
-                      role=dados_usuario[3],
-                      telefone=dados_usuario[4],
-                      escola=dados_usuario[5])
+                      senha=dados_usuario[3],
+                      role=dados_usuario[4],
+                      telefone=dados_usuario[5],
+                      escola=dados_usuario[6])
     return None
 
 @app.route('/', methods=['GET', 'POST'])
@@ -93,7 +95,7 @@ def login():
         senha = request.form['senha']
 
         if email and senha:
-            cursor.execute("SELECT id, nome, email, role, telefone, escola FROM usuarios WHERE email = %s", (email,))
+            cursor.execute("SELECT id, nome, email, senha, role, telefone, escola FROM usuarios WHERE email = %s", (email,))
             dados_usuario = cursor.fetchone()
             print(dados_usuario, dados_usuario[3], senha)
 
@@ -101,17 +103,19 @@ def login():
                 print("passou")
                 user =  Usuario(id=dados_usuario[0], 
                       nome=dados_usuario[1], 
-                      email=dados_usuario[2], 
-                      role=dados_usuario[3],
-                      telefone=dados_usuario[4],
-                      escola=dados_usuario[5])
+                      email=dados_usuario[2],
+                      senha=dados_usuario[3],
+                      role=dados_usuario[4],
+                      telefone=dados_usuario[5],
+                      escola=dados_usuario[6])
                 login_user(user)
                 flash('Login realizado com sucesso!', 'success')
                 return redirect(url_for('menu'))
             else:
+                print('Credenciais inválidas')
                 flash('Credenciais inválidas. Tente novamente.', 'danger')
                 return redirect(url_for('login'))
-
+        print('Campos incompletos')
         flash('Campos incompletos. Tente novamente.', 'danger')
         return redirect(url_for('login'))
     else:
@@ -155,8 +159,8 @@ def altera_usuario():
         }
         return render_template('altera_usuario.html', usuario=usuario, user=user)
 
-
 @app.route('/deleta_usuario', methods=['POST'])
+@login_required
 def deleta_usuario():
     if request.method == 'POST':
         email = request.form['email']
@@ -173,6 +177,7 @@ def deleta_usuario():
 
 
 @app.route('/cadastra_produto', methods=['GET', 'POST'])
+@login_required
 def cadastra_produto():
     if request.method == 'POST':
         nome = request.form['nome']
@@ -190,6 +195,7 @@ def cadastra_produto():
 
 
 @app.route('/produtos', methods=['GET'])
+@login_required
 def lista_produtos():
     cursor.execute("SELECT id, nome, descricao, preco, quantidade FROM produtos")
     produtos = cursor.fetchall()
@@ -197,17 +203,14 @@ def lista_produtos():
     return render_template('produtos.html', produtos=produtos)
 
 @app.route('/editar_produto/<int:id>', methods=['GET', 'POST'])
+@login_required
 def editar_produto(id):
+    user = {"role": current_user.role}
     if request.method == 'POST':
         id = request.form['codigo']  
         nome = request.form['nome'] 
         valor = request.form['valor']
         descricao = request.form['descricao']
-
-        '''Cara, tive que aprender pra testar se a pagina tava funcionando, entao vou deixar aqui pq deve te ajudar
-        em algum momento, o request.files.get('imagem') pega a imagem que o usuario submeteu, e o save salva ela na pasta 
-        que no nosso caso é imagens! Depois de salvar ela na pasta, no banco de dados voce só vai salvar o caminho dela
-        que é o f' imagens/{imagem.filename}'  '''
 
         imagem = request.files.get('imagem')
 
@@ -233,14 +236,14 @@ def editar_produto(id):
             "imagem": "/static/png-logo-black.png"
         }
         print(produto)
-        return render_template('editar_produto.html', produto=produto)
+        return render_template('editar_produto.html', produto=produto, user=user)
 
-@app.route('/excluir_produto', methods=['POST'])
-def excluir_produto():
-    if request.method == 'POST':
-        id = request.form['codigo'] 
+@app.route('/excluir_produto/<int:id>', methods=['GET', 'POST'])
+@login_required
+def excluir_produto(id):
+    if request.method == 'GET':
         if id:
-            cursor.execute("DELETE * produtos WHERE id=%s", (id))
+            cursor.execute("DELETE FROM produtos WHERE id=%s", (id,))
             conn.commit()
             return redirect('/menu')
         else:
@@ -257,7 +260,19 @@ def altera():
 
 @app.route('/notificacoes', methods=['GET', 'POST'])
 def notificacoes():
-    return render_template('notificacoes.html')
+    user = {"role": current_user.role}
+
+    if request.method == 'POST':
+        mensagem = request.form['mensagem']
+        if mensagem:
+            cursor.execute('INSERT INTO notificacoes (texto) VALUES (%s)', (mensagem,))
+            conn.commit()
+
+            return redirect('/menu')
+        else:
+            return jsonify({"message": "Campos incompletos"}), 400
+    else:
+        return render_template('notificacoes.html', user=user)
 
 @app.route('/menu', methods=['GET', 'POST'])
 @login_required

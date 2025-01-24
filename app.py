@@ -20,6 +20,8 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 
+from utils.recaptcha import verify_recaptcha
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '@teste22@.22'
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -87,12 +89,17 @@ def index():
             return jsonify({"message":"Credenciais invalidas"}), 400
     else:
         return render_template('cadastro.html')
-    
+
+ 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form['email']
         senha = request.form['senha']
+        recaptcha_response = request.form.get('g-recaptcha-response')
+    
+        if not verify_recaptcha(recaptcha_response):
+            return redirect('/login'), 'Falha na verificação do reCAPTCHA', 400
 
         if email and senha:
             cursor.execute("SELECT id, nome, email, senha, role, telefone, escola FROM usuarios WHERE email = %s", (email,))
@@ -109,14 +116,11 @@ def login():
                       telefone=dados_usuario[5],
                       escola=dados_usuario[6])
                 login_user(user)
-                flash('Login realizado com sucesso!', 'success')
                 return redirect(url_for('menu'))
             else:
                 print('Credenciais inválidas')
-                flash('Credenciais inválidas. Tente novamente.', 'danger')
                 return redirect(url_for('login'))
         print('Campos incompletos')
-        flash('Campos incompletos. Tente novamente.', 'danger')
         return redirect(url_for('login'))
     else:
         return render_template('login.html')
@@ -179,6 +183,7 @@ def deleta_usuario():
 @app.route('/cadastra_produto', methods=['GET', 'POST'])
 @login_required
 def cadastra_produto():
+    user = {"role": current_user.role}
     if request.method == 'POST':
         nome = request.form['nome']
         descricao = request.form['descricao']
@@ -191,7 +196,7 @@ def cadastra_produto():
             return redirect('/menu')
         else:
             return jsonify({"message": "Campos incompletos"}), 400
-    return render_template('cadastra_produto.html')
+    return render_template('cadastra_produto.html', user=user)
 
 
 @app.route('/produtos', methods=['GET'])
@@ -264,9 +269,15 @@ def notificacoes():
 
     if request.method == 'POST':
         mensagem = request.form['mensagem']
+        tipo = request.form['tipo']
+        print(mensagem, tipo)
         if mensagem:
-            cursor.execute('INSERT INTO notificacoes (texto) VALUES (%s)', (mensagem,))
-            conn.commit()
+            if tipo == "cliente":
+                cursor.execute('INSERT INTO notificacoes (texto, usuario) VALUES (%s, %s)', (mensagem, current_user.id))
+                conn.commit()
+            if tipo == "funcionario":
+                cursor.execute('INSERT INTO notificacoes (texto, usuario) VALUES (%s, %s)', (mensagem, current_user.id))
+                conn.commit()
 
             return redirect('/menu')
         else:
@@ -296,6 +307,10 @@ def menu():
     notificacoes_ativas = get_notificacoes(current_user.id)    
 
     return render_template('menu.html', produtos=produtos, user=user, notificacoes_ativas=notificacoes_ativas)
+
+@app.route('/requisitar/<int:numero>/<int:qnt>', methods=['GET', 'POST'])
+def requistitar(numero, qnt):
+    return redirect('/menu')
 
 @app.route('/contato', methods=['GET', 'POST'])
 def contato():

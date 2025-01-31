@@ -22,10 +22,13 @@
                 <label for="mensagem">Mensagem</label>
                 <textarea class="form-control" name="mensagem" id="mensagem" placeholder="Escreva o texto da notificação" rows="3" required></textarea>
             </div>
-            <!-- Buttons for user and employee -->
-            <div class="form-group text-center">
-                <button type="button" class="btn btn-secondary">Usuário</button>
-                <button type="button" class="btn btn-secondary">Funcionário</button>
+            <div class="form-group">
+                <label for="tipo">Destinatário</label>
+                <select class="form-control" name="tipo" id="tipo" required>
+                    <option value="">Selecione o destinatário</option>
+                    <option value="cliente">Cliente</option>
+                    <option value="funcionario">Funcionário</option>
+                </select>
             </div>
             <!-- Submit and cancel buttons -->
             <div class="text-center">

@@ -1,1 +1,51 @@
-vazio
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <!-- Metadados da página -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Produto</title>
+
+    <!-- Link para o CSS personalizado -->
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css" rel="stylesheet"/>
+    <link href="/static/formularios.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <header class="sticky-top">
+        {% include 'navbar.html' %}
+    </header>
+    
+    <div class="container py-4">
+        <h2 class="text-3xl font-bold text-center mb-4">Alterar Conta</h2>
+
+        <div class="card-edit mx-auto" style="max-width: 600px;">
+            <div class="card-body p-4">
+                <form method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="usuario" class="form-label">Nome do Produto</label>
+                        <input type="text" class="form-control" id="nome" name="nome" placeholder="Nome do produto" >
+                    </div>
+                    <div class="mb-3">
+                        <label for="usuario" class="form-label">Preço</label>
+                        <input type="text" class="form-control" id="preco" name="preco" placeholder="Preço" >
+                    </div>
+                    <div class="mb-3">
+                        <label for="usuario" class="form-label">Descrição</label>
+                        <input type="text" class="form-control" id="descricao" name="descricao" placeholder="Descricao" >
+                    </div>
+
+                    <div class="d-flex justify-content-center gap-2">
+                        <button type="submit" class="btn-save">Salvar</button>
+                        <button type="button" class="btn-cancel" >Cancelar</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Scripts do jQuery e Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+</body>
+</html>

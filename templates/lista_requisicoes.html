@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Requisições</title>
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css" rel="stylesheet"/>
+    <link href="/static/menu.css" rel="stylesheet"/>
+</head>
+<body class="bg-gray-50">
+    <!-- Header Section -->
+    <header class="sticky-top">
+        {% with %}
+            {% include 'navbar.html' with context %}
+        {% endwith %}
+    </header>
+
+    <!-- Main Content Section -->
+    <div class="container mx-auto px-4 py-8">
+        <h2 class="text-3xl font-bold text-center mb-4">Requisições dos Usuários</h2>
+        <p class="text-center text-gray-600 italic max-w-2xl mx-auto mb-8">
+            "Aqui você pode visualizar as requisições realizadas pelos nossos usuários."
+        </p>
+
+        <!-- Requisição List Section -->
+        <div id="requisicoes-container">
+            {% for requisicao in requisicoes %}
+                <div class="requisicao-card">
+                    <div class="requisicao-content">
+                        <div class="requisicao-info">
+                            <h5 class="text-xl font-semibold mb-2">{{ requisicao.nome_usuario }}</h5>
+                            <p class="text-gray-600 mb-1">Telefone: {{ requisicao.telefone }}</p>
+                            <p class="text-gray-600 mb-1">Produto: {{ requisicao.nome_produto }}</p>
+                            <p class="text-gray-600 mb-1">Quantidade: {{ requisicao.quantidade }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
+</body>
+</html>

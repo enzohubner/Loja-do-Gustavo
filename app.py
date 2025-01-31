@@ -274,6 +274,51 @@ def notificacoes():
     else:
         return render_template('notificacoes.html', user=user)
 
+@app.route('/requisitar/<int:id_produto>/<int:quantidade>', methods=['GET', 'POST'])
+@login_required
+def requistar(id_produto, quantidade):
+    id_usuario = current_user.id
+
+    if request.method == 'GET':
+        if id_produto and quantidade:
+            cursor.execute("INSERT INTO requisicoes (id_usuario, id_produto, quantidade) VALUES (%s, %s, %s)", (id_usuario, id_produto, quantidade))
+            conn.commit()
+            return redirect('/menu')
+        else:
+            return jsonify({"message": "Campos incompletos"}), 400 
+    else:
+        return render_template('menu.html')
+
+@app.route('/lista_requisicoes', methods=['GET', 'POST'])
+@login_required
+def lista_requisicoes():
+    cursor.execute("SELECT * FROM requisicoes")
+    requisicoes_db = cursor.fetchall()
+    
+    requisicoes = []
+
+    user={"role":current_user.role}
+
+    for i, item in enumerate(requisicoes_db, start=1):
+        cursor.execute("SELECT nome, telefone FROM usuarios WHERE id=%s", (item[1],))
+        dados_usuario = cursor.fetchone()
+
+        nome_usuario = dados_usuario[0]
+        telefone = dados_usuario[1]
+
+        cursor.execute("SELECT nome FROM produtos WHERE id=%s", (item[2],))
+        nome_produto = cursor.fetchone()
+
+        requisicoes.append({
+            "id": item[0],
+            "nome_usuario": nome_usuario,
+            "telefone": telefone,
+            "nome_produto": nome_produto,
+            "quantidade": item[3]
+        })
+
+    return render_template('lista_requisicoes.html', requisicoes=requisicoes, user=user)
+
 @app.route('/menu', methods=['GET', 'POST'])
 @login_required
 def menu():

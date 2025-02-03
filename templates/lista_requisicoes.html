@@ -25,13 +25,16 @@
         <!-- Requisição List Section -->
         <div id="requisicoes-container">
             {% for requisicao in requisicoes %}
-                <div class="requisicao-card">
-                    <div class="requisicao-content">
-                        <div class="requisicao-info">
-                            <h5 class="text-xl font-semibold mb-2">{{ requisicao.nome_usuario }}</h5>
+                <div class="product-card">
+                    <div class="product-content">
+                        <h5 class="text-xl font-semibold mb-2">{{ requisicao.nome_usuario|title }}</h5>
+                        <div class="product-info">
                             <p class="text-gray-600 mb-1">Telefone: {{ requisicao.telefone }}</p>
                             <p class="text-gray-600 mb-1">Produto: {{ requisicao.nome_produto }}</p>
                             <p class="text-gray-600 mb-1">Quantidade: {{ requisicao.quantidade }}</p>
+                        </div>
+                        <div class="product-actions">
+                            <a href="/excluir_produto/{{requisicao.id}}" class="btn-delete" onclick="return confirm('Tem certeza que deseja excluir este produto?')">Excluir</a>
                         </div>
                     </div>
                 </div>

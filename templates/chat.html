@@ -1,49 +1,42 @@
 {% extends "base.html" %}
 
+{% with user=user %}{% include 'navbar.html' %}{% endwith %}
 {% block title %}Chat{% endblock %}
-
 <!-- Chat screen -->
  
-
 {% block content %}
 {% if not messages|length %}
-	<h2 id="warn" style='color: #ccc'>Ainda não há mensagens</h2>
+    <h2 id="warn" style='color: #ccc'>Ainda não há mensagens</h2>
 {% endif %}
-
 {% for x, y, z in messages %}
-	<div class="msg">[{{x}}] {{z}} "{{y}}"</div>
+    <div class="msg">[{{x}}] {{z}} "{{y}}"</div>
 {% endfor %}
 {% endblock %}
-
 <!-- Send message form -->
 {% block content2 %}
 <div class="message-card">
-
-	<form class="form-group" autocomplete='off' method="POST">
-		<div class="form-group">
-			<input id="username" type="text" readonly class="user form-control-plaintext"
-				 value="Você está logado como {{code}}">
-			<h5>
-				Você está logado como {{ 'adm' if code.startswith('adm-') else code.split('-')[0] }}
-			</h5>
-			<div class="online">
-				<p id="conn" style="font-size: 14px;"><i>Online agora: 0</i></p>
-			</div>
-			<hr style="border-color: grey; margin-bottom: 2rem;">
-			<input type="text" class="message form-control" style="height: 4rem;" placeholder="Mensagem"></textarea>
-		</div>
-		<button id="btn-enviar"class=" btn btn-block">Enviar &nbsp;
-			<i class="fa fa-paper-plane"></i></button>
-	</form>
-
-	<hr style="border-color: grey; margin-top: 2rem; margin-bottom: 2rem;">
-
-	<div class="btn-group btn-block" role="group">
-  		<a href="/chat/{{code}}/history" id="btn-outline-info" class="btn btn-sm"style="width: 50%;">
-  			Minhas mensagens &nbsp;<i class="far fa-folder" style="color: #000000;"></i></a>
-  		<a href="/delete-account/{{code.split('-')[1] if code.startswith('adm-') else code.split('-')[0]}}" id="btn-outline-info" class="btn btn-sm " style="width: 50%;">
-  			Deletar dados &nbsp;<i class="fas fa-ban" style="color: #000000;"></i></a>
-	</div>
-
+    <form class="form-group" autocomplete='off' method="POST">
+        <div class="form-group">
+            <input id="username" type="text" readonly class="user form-control-plaintext"
+                 value="Você está logado como {{code}}">
+            <h5>
+                Você está logado como {{ 'adm' if code.startswith('adm-') else code.split('-')[0] }}
+            </h5>
+            <div class="online">
+                <p id="conn" style="font-size: 14px;"><i>Online agora: 0</i></p>
+            </div>
+            <hr style="border-color: grey; margin-bottom: 2rem;">
+            <input type="text" class="message form-control" style="height: 4rem;" placeholder="Mensagem"></textarea>
+        </div>
+        <button id="btn-enviar" class="btn btn-block">Enviar &nbsp;
+            <i class="fa fa-paper-plane"></i></button>
+    </form>
+    <hr style="border-color: grey; margin-top: 2rem; margin-bottom: 2rem;">
+    <div class="btn-group btn-block" role="group">
+        <a href="/chat/{{code}}/history" id="btn-outline-info" class="btn btn-sm" style="width: 50%;">
+            Minhas mensagens &nbsp;<i class="far fa-folder" style="color: #000000;"></i></a>
+        <a href="/delete-account/{{code.split('-')[1] if code.startswith('adm-') else code.split('-')[0]}}" id="btn-outline-info" class="btn btn-sm " style="width: 50%;">
+            Deletar dados &nbsp;<i class="fas fa-ban" style="color: #000000;"></i></a>
+    </div>
 </div>
 {% endblock %}

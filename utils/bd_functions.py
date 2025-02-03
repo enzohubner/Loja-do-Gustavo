@@ -10,6 +10,11 @@ def get_produtos():
     rows = cursor.fetchall()
     return [{"id": row[0], "name": row[1]} for row in rows]
 
+def get_emails():
+    cursor.execute('SELECT email FROM usuarios')
+    rows = cursor.fetchall()
+    return [row[0] for row in rows]
+
 def get_vendas():
     cursor.execute('''
         SELECT 

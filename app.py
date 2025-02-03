@@ -1,12 +1,12 @@
 import base64
 from datetime import datetime, timedelta
 import io
-from flask import Flask, flash, g, request, render_template, redirect, jsonify, send_file, url_for
+from flask import Flask, abort, flash, g, request, render_template, redirect, jsonify, send_file, url_for
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 from psycopg2 import sql
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, send, emit
 from db import cursor, conn
-from utils.bd_functions import get_notificacoes, get_produtos, get_vendas
+from utils.bd_functions import get_emails, get_notificacoes, get_produtos, get_vendas
 from utils.pdf_generator import create_sales_report_pdf
 from components.database import DataBase
 from components.utilities import *
@@ -19,8 +19,6 @@ from reportlab.lib.pagesizes import letter, landscape
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
-
-from utils.recaptcha import verify_recaptcha
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '@teste22@.22'
@@ -36,9 +34,6 @@ serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 socketio = SocketIO(app)
 db = DataBase()
 rooms = {}
-
-app = Flask(__name__)
-app.secret_key = '1234'
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -96,11 +91,6 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         senha = request.form['senha']
-        recaptcha_response = request.form.get('g-recaptcha-response')
-    
-        if not verify_recaptcha(recaptcha_response):
-            return redirect('/login'), 'Falha na verificação do reCAPTCHA', 400
-
         if email and senha:
             cursor.execute("SELECT id, nome, email, senha, role, telefone, escola FROM usuarios WHERE email = %s", (email,))
             dados_usuario = cursor.fetchone()
@@ -188,9 +178,23 @@ def cadastra_produto():
         nome = request.form['nome']
         descricao = request.form['descricao']
         preco = request.form['preco']
+        quantidade = request.form['quantidade']
+        imagem = request.files.get('imagem')
+        if imagem:
+            # Create directory if it doesn't exist
+            import os
+            upload_folder = os.path.join('static', 'imagens')
+            os.makedirs(upload_folder, exist_ok=True)
+            
+            # Save file to the directory
+            filename = os.path.join(upload_folder, imagem.filename)
+            imagem.save(filename)
+            imagem = f'static/imagens/{imagem.filename}'
+        else:
+            imagem = None
 
         if nome and descricao and preco: 
-            cursor.execute("INSERT INTO produtos (nome, valor, descricao) VALUES (%s, %s, %s)",(nome, preco, descricao))
+            cursor.execute("INSERT INTO produtos (nome, valor, descricao, quantidade, imagem) VALUES (%s, %s, %s, %s, %s)",(nome, preco, descricao, quantidade, imagem))
             conn.commit()
 
             return redirect('/menu')
@@ -342,10 +346,10 @@ def menu():
         produtos.append({
             "id": item[0],
             "nome": item[1].capitalize(),
-            "descricao": str(item[3]),
             "preco": float(item[2]),
-            "quantidade": int(item[0]),
-            "imagem": "/static/png-logo-black.png"
+            "descricao": str(item[3]),
+            "quantidade": int(item[4]),
+            "imagem": item[5]
         })
 
     user={"role":current_user.role}
@@ -355,7 +359,14 @@ def menu():
 
 @app.route('/requisitar/<int:numero>/<int:qnt>', methods=['GET', 'POST'])
 def requistitar(numero, qnt):
-    return redirect('/menu')
+    cursor.execute("SELECT quantidade FROM produtos WHERE id = %s", (numero,))
+    quantidade = cursor.fetchone()[0]
+    if quantidade >= qnt:
+        cursor.execute("UPDATE produtos SET quantidade = %s WHERE id = %s", (quantidade - qnt, numero))
+        conn.commit()
+        return redirect('/menu')
+    else:
+        return jsonify({"message": "Quantidade indisponível"}), 400
 
 @app.route('/contato', methods=['GET', 'POST'])
 def contato():
@@ -366,31 +377,10 @@ def configuracao():
     user = {"role": current_user.role}
     return render_template('configuracoes.html', user=user)
 
-products = [
-    {"id": 1, "name": "Alfajor"},
-    {"id": 2, "name": "Bolos"},
-    {"id": 3, "name": "Cookies"},
-    {"id": 4, "name": "Doces"}
-]
-
-# Sample sales data
-sales = {
-    "Alfajor": {
-        "2024-01": 50, "2024-02": 75, "2024-03": 100,
-        "2024-04": 120, "2024-05": 90, "2024-06": 130,
-        "2024-07": 140, "2024-08": 145, "2024-09": 130,
-        "2024-10": 110, "2024-11": 90, "2024-12": 110
-    },
-    "Bolos": {
-        "2024-01": 80, "2024-02": 100, "2024-03": 120,
-        "2024-04": 140, "2024-05": 110, "2024-06": 150,
-        "2024-07": 160, "2024-08": 170, "2024-09": 130,
-        "2024-10": 100, "2024-11": 100, "2024-12": 120
-    }
-}
 @app.route('/relatorios', methods=['GET', 'POST'])
 def relatorios():
     user = {"role": current_user.role}
+    sales = get_vendas()
     products = get_produtos()
     return render_template('relatorios.html', products=products, user=user, sales=sales)
 
@@ -448,26 +438,24 @@ def generate_pdf():
 @app.route("/adm-chat")
 @login_required
 def adm():
+    user = {"role": current_user.role, "nome": current_user.nome}
     client_list = db.get_client_info()
-    print(client_list)
-    user = {"role": current_user.role}
-    return render_template("list_chats.html", client_list=client_list, user=user)
+    return render_template("list_chats.html", client_list=client_list,user=user)
 
 @app.route("/chat/<code>", methods=["GET", "POST"])
 @app.route("/chat", methods=["GET", "POST"], defaults={'code': None})
+@login_required
 def chat(code):
-    user = "adm"  # Exemplo de usuário, você pode obter isso de uma sessão ou autenticação
-    adm = "adm"
-
-    if user == "adm" and code is None:
+    user = {"role": current_user.role, "nome": current_user.nome}
+    if user['role'] == "admin" and code is None:
         return redirect('/adm-chat')
     
     if code is None:
         # Gera um novo código de chat e redireciona diretamente
-        code = f"{user}-{adm}"
-        if not db.table_exists(user):
-            db.create_table(user)
-            db.adm_append(user)
+        code = f"{user['nome']}-{"adm"}"
+        if not db.table_exists(user['nome']):
+            db.create_table(user['nome'])
+            db.adm_append(user['nome'])
         return redirect(url_for("chat", code=code))
     else:
         # Lógica para a sala de chat
@@ -475,12 +463,6 @@ def chat(code):
             user = code.split('-')[1]  # Extrai o nome do usuário após o hífen
             # Lógica para a sala de chat como administrador
             raw = db.get(user) if db.table_exists(user) else []
-            print(raw)
-            # Update unread messages to read in the database
-            for message in raw:
-                if message[4] == 0:  # if message is unread
-                    db.update_message_status(user, message[0])  # message[0] should be the message ID
-            
             #code = f"{user}-adm"
         else:
             # Lógica para a sala de chat normal
@@ -497,8 +479,8 @@ def chat(code):
         
         if code.startswith("adm-"):
             adm = "adm"
-            return render_template("chat.html", code=code, messages=messages, age=age, count=count, adm=adm)
-        return render_template("chat.html", code=code, messages=messages, age=age, count=count)
+            return render_template("chat.html", code=code, messages=messages, age=age, count=count, adm=adm, user=user)
+        return render_template("chat.html", code=code, messages=messages, age=age, count=count, user=user)
 
 
 # renders chat history page
@@ -596,7 +578,6 @@ def handle_disconnection(json):
 
 		socketio.emit("online now", str(len(rooms[code])))
 
-
 users_db = {
     'enzonsei@gmail.com': {
         'password': 'senha123'
@@ -608,7 +589,9 @@ def forgot_password():
     if request.method == 'POST':
         email = request.form.get('email')
         
-        if email in users_db:
+        email_usuarios = get_emails()
+        print(email_usuarios)
+        if email in email_usuarios:
             # Gera token com validade de 1 hora
             token = serializer.dumps(email, salt='recover-key')
             
@@ -651,7 +634,7 @@ def reset_password(token):
         email = serializer.loads(token, salt='recover-key', max_age=3600)
     except:
         flash('O link de recuperação é inválido ou expirou.', 'error')
-        return redirect(url_for('forgot_password'))
+        return redirect('/esqueceu-senha')
     
     if request.method == 'POST':
         password = request.form.get('password')
@@ -661,8 +644,9 @@ def reset_password(token):
             flash('As senhas não coincidem.', 'error')
             return render_template('reset_password.html')
         
-        # Atualiza a senha no "banco de dados"
-        users_db[email]['password'] = password
+
+        cursor.execute("UPDATE usuarios SET senha = %s WHERE email = %s", (password, email))
+        conn.commit()
         
         flash('Sua senha foi atualizada com sucesso!', 'success')
         return redirect(url_for('login'))

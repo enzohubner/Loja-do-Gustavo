@@ -4,7 +4,9 @@
     <!-- Metadados da página -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar Produto</title>
+    <title>Cadastrar Produto</title>
+
+    <link rel="icon" href="/static/png-logo-white.png" type="image">
 
     <!-- Link para o CSS personalizado -->
     <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css" rel="stylesheet"/>
@@ -16,7 +18,7 @@
     </header>
     
     <div class="container py-4">
-        <h2 class="text-3xl font-bold text-center mb-4">Alterar Conta</h2>
+        <h2 class="text-3xl font-bold text-center mb-4">Cadastrar Produto</h2>
 
         <div class="card-edit mx-auto" style="max-width: 600px;">
             <div class="card-body p-4">
@@ -30,13 +32,23 @@
                         <input type="text" class="form-control" id="preco" name="preco" placeholder="Preço" >
                     </div>
                     <div class="mb-3">
+                        <label for="usuario" class="form-label">Quantidade</label>
+                        <input type="text" class="form-control" id="quantidade" name="quantidade" placeholder="Quantidade" >
+                    </div>
+                    <div class="mb-3">
                         <label for="usuario" class="form-label">Descrição</label>
                         <input type="text" class="form-control" id="descricao" name="descricao" placeholder="Descricao" >
                     </div>
 
+                    <div class="mb-3">
+                        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="file_input">Upload file</label>
+                        <input name="imagem" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" id="file_input" type="file" accept="image/*" required>
+                    </div>
+
                     <div class="d-flex justify-content-center gap-2">
                         <button type="submit" class="btn-save">Salvar</button>
-                        <button type="button" class="btn-cancel" >Cancelar</button>
+                        <button type="button" class="btn-cancel" onclick="history.back()">Cancelar</button>
+
                     </div>
 
                 </form>

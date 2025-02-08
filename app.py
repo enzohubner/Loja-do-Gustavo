@@ -240,7 +240,7 @@ def editar_produto(id):
             "id": produto_db[0],
             "nome": produto_db[1],
             "descricao": str(produto_db[3]),
-            "preco": float(produto_db[2]),
+            "preco": produto_db[2],
             "quantidade": int(produto_db[0]),
             "imagem": "/static/png-logo-black.png"
         }
@@ -346,7 +346,7 @@ def menu():
         produtos.append({
             "id": item[0],
             "nome": item[1].capitalize(),
-            "preco": float(item[2]),
+            "preco": item[2],
             "descricao": str(item[3]),
             "quantidade": int(item[4]),
             "imagem": item[5]
@@ -452,7 +452,7 @@ def chat(code):
     
     if code is None:
         # Gera um novo código de chat e redireciona diretamente
-        code = f"{user['nome']}-{"adm"}"
+        code = f"{user['nome']}-adm"
         if not db.table_exists(user['nome']):
             db.create_table(user['nome'])
             db.adm_append(user['nome'])

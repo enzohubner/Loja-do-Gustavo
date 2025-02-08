@@ -1,6 +1,7 @@
 import base64
 from datetime import datetime, timedelta
 import io
+import os
 from flask import Flask, abort, flash, g, request, render_template, redirect, jsonify, send_file, url_for
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 from psycopg2 import sql
@@ -664,4 +665,5 @@ def navbar_info():
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    socketio.run(app, host='0.0.0.0', port=port, debug=True)

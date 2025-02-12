@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Venda</title>
+
+    <link rel="icon" href="/static/png-logo-white.png" type="image">
+
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css" rel="stylesheet"/>
+    <link href="/static/formularios.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <header class="sticky-top">
+        {% include 'navbar.html' %}
+    </header>
+
+    <div class="container py-4">
+        <h2 class="text-3xl font-bold text-center mb-4">Registrar Venda</h2>
+
+        <div class="card-edit mx-auto" style="max-width: 600px;">
+            <div class="card-body p-4">
+                <form method="post">
+                    <div class="mb-3">
+                        <label for="nome_produto" class="form-label">Nome do Produto</label>
+                        <input type="text" class="form-control" id="nome_produto" name="nome_produto" placeholder="Digite o nome do produto" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="quantidade" class="form-label">Quantidade</label>
+                        <input type="number" class="form-control" id="quantidade" name="quantidade" placeholder="Quantidade vendida" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="valor" class="form-label">Valor da Venda (R$)</label>
+                        <input type="text" class="form-control" id="valor" name="valor" placeholder="Digite o valor total" required>
+                    </div>
+
+                    <div class="d-flex justify-content-center gap-2">
+                        <button type="submit" class="btn-save">Registrar</button>
+                        <button type="button" class="btn-cancel" onclick="history.back()">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+</body>
+</html>

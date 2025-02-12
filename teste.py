@@ -4,7 +4,7 @@ from psycopg2 import sql
 from db import cursor, conn
 
 # cursor.execute("UPDATE notificacoes SET coluna1 = novo_valor1, coluna2 = novo_valor2 WHERE condicao;")
-cursor.execute("CREATE TABLE requisicoes (id SERIAL PRIMARY KEY,id_usuario INT NOT NULL,id_produto INT NOT NULL,quantidade INT NOT NULL CHECK (quantidade > 0),data_requisicao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,FOREIGN KEY (id_usuario) REFERENCES usuarios(id) ON DELETE CASCADE,FOREIGN KEY (id_produto) REFERENCES produtos(id) ON DELETE CASCADE);") 
+cursor.execute("SELECT column_name, data_type, is_nullable, column_default FROM information_schema.columns WHERE table_name = 'vendas'") 
 printar = cursor.fetchall()
 print(printar)
 """cursor.execute("INSERT INTO produtos (nome, valor, descricao) VALUES ('produtob', '1234', 'testeb')")

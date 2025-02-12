@@ -262,6 +262,7 @@ def excluir_produto(id):
         return render_template('excluir_produto.html')
 
 @app.route('/navbar', methods=['GET'])
+@login_required
 def altera():
     notificacoes_ativas = ["Notificação 1", "Notificação 2", "Notificação 3"]
     usuario = "admin"
@@ -269,6 +270,7 @@ def altera():
     return render_template('navbar.html', notificacoes_ativas=notificacoes_ativas, usuario=usuario)
 
 @app.route('/notificacoes', methods=['GET', 'POST'])
+@login_required
 def notificacoes():
     user = {"role": current_user.role}
 
@@ -359,6 +361,7 @@ def menu():
     return render_template('menu.html', produtos=produtos, user=user, notificacoes_ativas=notificacoes_ativas)
 
 @app.route('/requisitar/<int:numero>/<int:qnt>', methods=['GET', 'POST'])
+@login_required
 def requistitar(numero, qnt):
     cursor.execute("SELECT quantidade FROM produtos WHERE id = %s", (numero,))
     quantidade = cursor.fetchone()[0]
@@ -370,15 +373,38 @@ def requistitar(numero, qnt):
         return jsonify({"message": "Quantidade indisponível"}), 400
 
 @app.route('/contato', methods=['GET', 'POST'])
+@login_required
 def contato():
     return render_template('chat.html')
 
 @app.route('/configuracao', methods=['GET', 'POST'])
+@login_required
 def configuracao():
     user = {"role": current_user.role}
     return render_template('configuracoes.html', user=user)
 
+@app.route('/vendas', methods=['GET', 'POST'])
+@login_required
+def vendas():
+    user = {"role": current_user.role}
+    if request.method == 'POST':
+            quantidade = request.form['quantidade']
+            valor = int(request.form['valor'])
+            data_venda = datetime.now().strftime('%Y-%m-%d')
+            nome_produto = str(request.form['nome_produto'])
+
+            if quantidade and nome_produto and valor:
+                cursor.execute("INSERT INTO vendas (quantidade, valor, data_venda, nome_produto) VALUES (%s, %s, %s, %s)", (quantidade, valor, data_venda, nome_produto))
+                conn.commit()
+
+                return redirect('/menu')
+            else:
+                return jsonify({"message": "Campos incompletos"}), 400 
+    else:
+        return render_template('vendas.html', user=user)
+
 @app.route('/relatorios', methods=['GET', 'POST'])
+@login_required
 def relatorios():
     user = {"role": current_user.role}
     sales = get_vendas()

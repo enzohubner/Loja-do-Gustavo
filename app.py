@@ -225,7 +225,7 @@ def editar_produto(id):
         imagem = request.files.get('imagem')
 
         if imagem:
-            imagem.save(f'imagens/{imagem.filename}')
+            imagem.save(f'static/imagens/{imagem.filename}')
 
         if id and nome and valor and descricao: 
             cursor.execute("UPDATE produtos SET nome=%s, valor=%s, descricao=%s WHERE id=%s", (nome, valor, descricao, id))
@@ -329,7 +329,7 @@ def lista_requisicoes():
             "id": item[0],
             "nome_usuario": nome_usuario,
             "telefone": telefone,
-            "nome_produto": nome_produto,
+            "nome_produto": nome_produto[0],
             "quantidade": item[3]
         })
 

@@ -33,5 +33,4 @@ def get_vendas():
             sales_data[produto] = {}
         sales_data[produto][month] = quantidade
 
-    print(sales_data)
     return sales_data

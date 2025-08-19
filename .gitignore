@@ -6,3 +6,5 @@ __pycache__/
 *.pyo
 .pytest_cache/
 .coverage
+teste.py
+temp_chart.png

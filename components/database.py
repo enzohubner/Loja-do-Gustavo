@@ -28,11 +28,10 @@ class DataBase(object):
 		
 		for client_id, client_user in clients_data:
 			if (self.table_exists("admin") and self.table_exists(client_user)):
-			# Get last message and time for each client
+				# Get last message and time for each client
 				last_msg_command = f"SELECT user, date FROM {client_user}_table ORDER BY id DESC LIMIT 1"
 				self.cursor.execute(last_msg_command)
 				last_msg = self.cursor.fetchone()
-				
 				
 				unread_command = f"SELECT COUNT(*) FROM {client_user}_table WHERE read = 0 AND user != 'admin'"
 				self.cursor.execute(unread_command)
@@ -40,7 +39,7 @@ class DataBase(object):
 				
 				chat_info = {
 					'client_name': client_user,
-					'id': client_id,  # Now using the actual id from admin_table
+					'id': client_id,
 					'last_message': last_msg[0] if last_msg else "",
 					'last_message_time': last_msg[1] if last_msg else "",
 					'unread_messages': unread_count
@@ -48,11 +47,6 @@ class DataBase(object):
 				chats.append(chat_info)
 			
 		return chats
-	
-	'''def create_admin_table(self):
-		command = f"CREATE TABLE IF NOT EXISTS admin_table (id INTEGER PRIMARY KEY AUTOINCREMENT, \
-			admin_name VARCHAR(20), client_access VARCHAR(20))"
-		self.cursor.execute(command)'''
 
 	# appends new message to table
 	def append(self, user, msg, date, adm):

@@ -1,33 +1,45 @@
 import base64
-from datetime import datetime, timedelta
 import io
 import os
+from datetime import datetime, timedelta
+
+# Flask imports
 from flask import Flask, abort, flash, g, request, render_template, redirect, jsonify, send_file, url_for
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
-from psycopg2 import sql
-from flask_socketio import SocketIO, send, emit
-from db import cursor, conn
-from utils.bd_functions import get_emails, get_notificacoes, get_produtos, get_vendas
-from utils.pdf_generator import create_sales_report_pdf
-from components.database import DataBase
-from components.utilities import *
-
 from flask_mail import Mail, Message
+from flask_socketio import SocketIO, send, emit
+
+# Security imports
+from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer
 
+# Database imports
+from psycopg2 import sql
+
+# PDF generation imports
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter, landscape
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 
+# Local imports
+from config import config
+from db import cursor, conn
+from utils.bd_functions import get_emails, get_notificacoes, get_produtos, get_vendas
+from utils.pdf_generator import create_sales_report_pdf
+from components.database import DataBase
+from components.utilities import *
+
+# Constants
+MIN_PASSWORD_LENGTH = 6
+MAX_PASSWORD_LENGTH = 128
+TOKEN_EXPIRY_SECONDS = 3600  # 1 hour
+DEFAULT_PORT = 5000
+
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '@teste22@.22'
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'cakesbigusta@gmail.com'  # Seu email
-app.config['MAIL_PASSWORD'] = 'nzep gpkv jgii wygq'
+config_name = os.environ.get('FLASK_ENV') or 'default'
+app.config.from_object(config[config_name])
 
 mail = Mail(app)
 serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
@@ -52,54 +64,71 @@ class Usuario(UserMixin):
 
 @login_manager.user_loader
 def load_user(id_usuario):
-    cursor.execute("SELECT id, nome, email, senha, role, telefone, escola FROM usuarios WHERE id = %s", (id_usuario,))
-    dados_usuario = cursor.fetchone()
-    print(dados_usuario)
-    if dados_usuario:
-        return Usuario(id=dados_usuario[0], 
-                      nome=dados_usuario[1], 
-                      email=dados_usuario[2], 
-                      senha=dados_usuario[3],
-                      role=dados_usuario[4],
-                      telefone=dados_usuario[5],
-                      escola=dados_usuario[6])
+    try:
+        cursor.execute("SELECT id, nome, email, senha, role, telefone, escola FROM usuarios WHERE id = %s", (id_usuario,))
+        dados_usuario = cursor.fetchone()
+        if dados_usuario:
+            return Usuario(id=dados_usuario[0], 
+                          nome=dados_usuario[1], 
+                          email=dados_usuario[2], 
+                          senha=dados_usuario[3],
+                          role=dados_usuario[4],
+                          telefone=dados_usuario[5],
+                          escola=dados_usuario[6])
+    except Exception as e:
+        # Log error in production
+        pass
     return None
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        nome = request.form['nome']
-        email = request.form['email']
-        telefone = request.form['telefone']
-        escola = request.form['escola']
-        senha = request.form['senha']
-        senha2 = request.form['confirmeSenha']
+        nome = request.form.get('nome', '').strip()
+        email = request.form.get('email', '').strip()
+        telefone = request.form.get('telefone', '').strip()
+        escola = request.form.get('escola', '').strip()
+        senha = request.form.get('senha', '')
+        senha2 = request.form.get('confirmeSenha', '')
         role = 'user'
 
+        # Basic validation
+        if not all([nome, email, telefone, escola, senha, senha2]):
+            return jsonify({"message": "Todos os campos são obrigatórios"}), 400
+        
+        if len(senha) < MIN_PASSWORD_LENGTH:
+            return jsonify({"message": f"Senha deve ter pelo menos {MIN_PASSWORD_LENGTH} caracteres"}), 400
+
         if senha == senha2:
-            inserir_query = "INSERT INTO usuarios (nome, email, senha, telefone, escola,role) VALUES (%s, %s, %s, %s, %s,%s)"
-            cursor.execute(inserir_query, (nome, email, senha, telefone, escola, role))
-            conn.commit()
-            return redirect('/login')
+            # Hash the password before storing
+            senha_hash = generate_password_hash(senha)
+            try:
+                inserir_query = "INSERT INTO usuarios (nome, email, senha, telefone, escola,role) VALUES (%s, %s, %s, %s, %s,%s)"
+                cursor.execute(inserir_query, (nome, email, senha_hash, telefone, escola, role))
+                conn.commit()
+                return redirect('/login')
+            except Exception as e:
+                return jsonify({"message": "Erro ao criar usuário. Email pode já estar em uso."}), 400
         else:
-            return jsonify({"message":"Credenciais invalidas"}), 400
+            return jsonify({"message": "Senhas não coincidem"}), 400
     else:
         return render_template('cadastro.html')
 
- 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email = request.form['email']
-        senha = request.form['senha']
-        if email and senha:
+        email = request.form.get('email', '').strip()
+        senha = request.form.get('senha', '')
+        
+        if not email or not senha:
+            flash('Email e senha são obrigatórios', 'error')
+            return redirect(url_for('login'))
+            
+        try:
             cursor.execute("SELECT id, nome, email, senha, role, telefone, escola FROM usuarios WHERE email = %s", (email,))
             dados_usuario = cursor.fetchone()
-            print(dados_usuario, dados_usuario[3], senha)
 
-            if dados_usuario and dados_usuario[3] == senha:  # Substituir por hashing seguro posteriormente
-                print("passou")
-                user =  Usuario(id=dados_usuario[0], 
+            if dados_usuario and check_password_hash(dados_usuario[3], senha):
+                user = Usuario(id=dados_usuario[0], 
                       nome=dados_usuario[1], 
                       email=dados_usuario[2],
                       senha=dados_usuario[3],
@@ -109,10 +138,11 @@ def login():
                 login_user(user)
                 return redirect(url_for('menu'))
             else:
-                print('Credenciais inválidas')
+                flash('Credenciais inválidas', 'error')
                 return redirect(url_for('login'))
-        print('Campos incompletos')
-        return redirect(url_for('login'))
+        except Exception as e:
+            flash('Erro interno do sistema. Tente novamente.', 'error')
+            return redirect(url_for('login'))
     else:
         return render_template('login.html')
 
@@ -128,28 +158,40 @@ def logout():
 def altera_usuario():
     user = {"role": current_user.role}
     if request.method == 'POST':
-        nome = request.form['nome']
-        senha_antiga = request.form['senhaAntiga']  
-        email_novo = request.form['email']
-        senha_nova = request.form['novaSenha']
+        nome = request.form.get('nome', '').strip()
+        senha_antiga = request.form.get('senhaAntiga', '')
+        email_novo = request.form.get('email', '').strip()
+        senha_nova = request.form.get('novaSenha', '')
 
-        email = current_user.email
-        cursor.execute("SELECT senha FROM usuarios WHERE email = %s", (email,))
-        senha = cursor.fetchone()
+        # Basic validation
+        if not all([nome, senha_antiga, email_novo, senha_nova]):
+            return jsonify({"message": "Todos os campos são obrigatórios"}), 400
+            
+        if len(senha_nova) < MIN_PASSWORD_LENGTH:
+            return jsonify({"message": f"Nova senha deve ter pelo menos {MIN_PASSWORD_LENGTH} caracteres"}), 400
 
-        if senha_antiga == senha[0]: 
-            cursor.execute("UPDATE usuarios SET nome = %s, email = %s, senha = %s WHERE email = %s", (nome, email_novo, senha_nova, email))
-            conn.commit()
-            return jsonify({"message": "Alterações salvas com sucesso!"}), 200
-        else:
-            return jsonify({"message": "Senha antiga incorreta"}), 400
+        try:
+            email = current_user.email
+            cursor.execute("SELECT senha FROM usuarios WHERE email = %s", (email,))
+            senha_hash = cursor.fetchone()
+
+            if senha_hash and check_password_hash(senha_hash[0], senha_antiga):
+                nova_senha_hash = generate_password_hash(senha_nova)
+                cursor.execute("UPDATE usuarios SET nome = %s, email = %s, senha = %s WHERE email = %s", 
+                             (nome, email_novo, nova_senha_hash, email))
+                conn.commit()
+                return jsonify({"message": "Alterações salvas com sucesso!"}), 200
+            else:
+                return jsonify({"message": "Senha antiga incorreta"}), 400
+        except Exception as e:
+            return jsonify({"message": "Erro ao atualizar usuário"}), 500
     else:
         usuario = {
             'id': current_user.id,
             'email': current_user.email,
             'nome': current_user.nome,
-            'telefone': '99999-9999',
-            'escola': 'Escola XYZ',
+            'telefone': current_user.telefone or '99999-9999',
+            'escola': current_user.escola or 'Escola XYZ',
             'role': current_user.role
         }
         return render_template('altera_usuario.html', usuario=usuario, user=user)
@@ -158,15 +200,23 @@ def altera_usuario():
 @login_required
 def deleta_usuario():
     if request.method == 'POST':
-        email = request.form['email']
+        email = request.form.get('email', '').strip()
 
-        if email:
+        if not email:
+            return jsonify({"message": "Email é obrigatório"}), 400
+            
+        # Prevent users from deleting themselves accidentally
+        if email == current_user.email:
+            return jsonify({"message": "Você não pode deletar sua própria conta desta forma"}), 400
+
+        try:
             cursor.execute("DELETE FROM usuarios WHERE email = %s", (email,))
+            if cursor.rowcount == 0:
+                return jsonify({"message": "Usuário não encontrado"}), 404
             conn.commit()
-
             return render_template('deleta_usuario.html')    
-        else:
-            return jsonify({"message": "Campos incompletos"}), 400
+        except Exception as e:
+            return jsonify({"message": "Erro ao deletar usuário"}), 500
     else:
         return render_template('deleta_usuario.html') 
 
@@ -176,31 +226,46 @@ def deleta_usuario():
 def cadastra_produto():
     user = {"role": current_user.role}
     if request.method == 'POST':
-        nome = request.form['nome']
-        descricao = request.form['descricao']
-        preco = request.form['preco']
-        quantidade = request.form['quantidade']
+        nome = request.form.get('nome', '').strip()
+        descricao = request.form.get('descricao', '').strip()
+        preco = request.form.get('preco')
+        quantidade = request.form.get('quantidade')
         imagem = request.files.get('imagem')
-        if imagem:
+        
+        # Basic validation
+        if not all([nome, descricao, preco]):
+            return jsonify({"message": "Nome, descrição e preço são obrigatórios"}), 400
+            
+        try:
+            preco_float = float(preco)
+            quantidade_int = int(quantidade) if quantidade else 0
+            
+            if preco_float <= 0:
+                return jsonify({"message": "Preço deve ser maior que zero"}), 400
+            if quantidade_int < 0:
+                return jsonify({"message": "Quantidade não pode ser negativa"}), 400
+                
+        except (ValueError, TypeError):
+            return jsonify({"message": "Preço e quantidade devem ser números válidos"}), 400
+        
+        imagem_path = None
+        if imagem and imagem.filename:
             # Create directory if it doesn't exist
-            import os
             upload_folder = os.path.join('static', 'imagens')
             os.makedirs(upload_folder, exist_ok=True)
             
             # Save file to the directory
             filename = os.path.join(upload_folder, imagem.filename)
             imagem.save(filename)
-            imagem = f'static/imagens/{imagem.filename}'
-        else:
-            imagem = None
+            imagem_path = f'static/imagens/{imagem.filename}'
 
-        if nome and descricao and preco: 
-            cursor.execute("INSERT INTO produtos (nome, valor, descricao, quantidade, imagem) VALUES (%s, %s, %s, %s, %s)",(nome, preco, descricao, quantidade, imagem))
+        try:
+            cursor.execute("INSERT INTO produtos (nome, valor, descricao, quantidade, imagem) VALUES (%s, %s, %s, %s, %s)",
+                         (nome, preco_float, descricao, quantidade_int, imagem_path))
             conn.commit()
-
             return redirect('/menu')
-        else:
-            return jsonify({"message": "Campos incompletos"}), 400
+        except Exception as e:
+            return jsonify({"message": "Erro ao cadastrar produto"}), 500
     return render_template('cadastra_produto.html', user=user)
 
 
@@ -242,10 +307,9 @@ def editar_produto(id):
             "nome": produto_db[1],
             "descricao": str(produto_db[3]),
             "preco": produto_db[2],
-            "quantidade": int(produto_db[0]),
-            "imagem": "/static/png-logo-black.png"
+            "quantidade": int(produto_db[4]),
+            "imagem": produto_db[5] if produto_db[5] else "/static/png-logo-black.png"
         }
-        print(produto)
         return render_template('editar_produto.html', produto=produto, user=user)
 
 @app.route('/excluir_produto/<int:id>', methods=['GET', 'POST'])
@@ -277,7 +341,6 @@ def notificacoes():
     if request.method == 'POST':
         mensagem = request.form['mensagem']
         tipo = request.form['tipo']
-        print(mensagem, tipo)
         if mensagem:
             if tipo == "cliente":
                 cursor.execute('INSERT INTO notificacoes (texto, usuario) VALUES (%s, %s)', (mensagem, current_user.id))
@@ -340,37 +403,53 @@ def lista_requisicoes():
 @app.route('/menu', methods=['GET', 'POST'])
 @login_required
 def menu():
-    cursor.execute("SELECT * FROM produtos")
-    produtos_db = cursor.fetchall()
-    
-    produtos = []
+    try:
+        cursor.execute("SELECT * FROM produtos")
+        produtos_db = cursor.fetchall()
+        
+        produtos = []
+        for item in produtos_db:
+            produtos.append({
+                "id": item[0],
+                "nome": item[1].capitalize() if item[1] else "",
+                "preco": item[2] if item[2] else 0,
+                "descricao": str(item[3]) if item[3] else "",
+                "quantidade": int(item[4]) if item[4] else 0,
+                "imagem": item[5] if item[5] else "/static/png-logo-black.png"
+            })
 
-    for i, item in enumerate(produtos_db, start=1):
-        produtos.append({
-            "id": item[0],
-            "nome": item[1].capitalize(),
-            "preco": item[2],
-            "descricao": str(item[3]),
-            "quantidade": int(item[4]),
-            "imagem": item[5]
-        })
+        user = {"role": current_user.role}
+        notificacoes_ativas = get_notificacoes(current_user.id)    
 
-    user={"role":current_user.role}
-    notificacoes_ativas = get_notificacoes(current_user.id)    
-
-    return render_template('menu.html', produtos=produtos, user=user, notificacoes_ativas=notificacoes_ativas)
+        return render_template('menu.html', produtos=produtos, user=user, notificacoes_ativas=notificacoes_ativas)
+    except Exception as e:
+        # In production, log this error
+        flash('Erro ao carregar produtos', 'error')
+        return render_template('menu.html', produtos=[], user={"role": current_user.role}, notificacoes_ativas=[])
 
 @app.route('/requisitar/<int:numero>/<int:qnt>', methods=['GET', 'POST'])
 @login_required
 def requistitar(numero, qnt):
-    cursor.execute("SELECT quantidade FROM produtos WHERE id = %s", (numero,))
-    quantidade = cursor.fetchone()[0]
-    if quantidade >= qnt:
-        cursor.execute("UPDATE produtos SET quantidade = %s WHERE id = %s", (quantidade - qnt, numero))
-        conn.commit()
-        return redirect('/menu')
-    else:
-        return jsonify({"message": "Quantidade indisponível"}), 400
+    if qnt <= 0:
+        return jsonify({"message": "Quantidade deve ser maior que zero"}), 400
+    
+    try:
+        cursor.execute("SELECT quantidade FROM produtos WHERE id = %s", (numero,))
+        result = cursor.fetchone()
+        
+        if not result:
+            return jsonify({"message": "Produto não encontrado"}), 404
+            
+        quantidade_disponivel = result[0]
+        if quantidade_disponivel >= qnt:
+            cursor.execute("UPDATE produtos SET quantidade = %s WHERE id = %s", 
+                         (quantidade_disponivel - qnt, numero))
+            conn.commit()
+            return redirect('/menu')
+        else:
+            return jsonify({"message": f"Quantidade indisponível. Disponível: {quantidade_disponivel}"}), 400
+    except Exception as e:
+        return jsonify({"message": "Erro ao processar requisição"}), 500
 
 @app.route('/contato', methods=['GET', 'POST'])
 @login_required
@@ -438,11 +517,9 @@ def get_sales():
 @app.route('/generate-pdf', methods=['POST'])
 def generate_pdf():
     try:
-        print("entrou")
         data = request.json
         
         chart_image = base64.b64decode(data['chart_image'].split(",")[1])
-        print("ola")
         pdf = create_sales_report_pdf(
             chart_image_data=chart_image,
             start_date=data['start_date'],
@@ -510,18 +587,15 @@ def chat(code):
         return render_template("chat.html", code=code, messages=messages, age=age, count=count, user=user)
 
 
-# renders chat history page
 @app.route("/chat/<code>/history", methods=["GET", "POST"])
 def history(code):
     if code.startswith("adm-"):
         raw = db.get(code.split('-')[1])
     else:
         raw = db.get(code.split('-')[0])
-    print(raw)
-    print()
+    
     # Update to handle 4 columns: user, message, date, read
     messages = [(x[1], x[2], x[3]) for x in raw]
-    print(messages)
 
     if messages:
         messages.reverse()
@@ -537,8 +611,6 @@ def history(code):
 @app.route("/delete-account/<user>")
 def delete(user):
     global rooms
-    print(rooms)
-    print(user)
     for room in list(rooms.keys()):
         if user in rooms[room]:
             rooms.pop(room)
@@ -548,34 +620,24 @@ def delete(user):
 
 
 
-# method for socket broadcast
 @socketio.on("message")
 def handle_my_custom_event(json):
     global rooms
     user, code = json["user"], json["room"]
 
-    
     if user.startswith("adm-"):
         user = user.split('-')[1]
         json.update({"user": "adm"})
-
     else:
         user = user.split('-')[0]
         json.update({"user": user})
     
-    print("haha")
-    print(json)
     dnow = datetime.now()
 
     if code not in rooms:
         rooms[code] = []
     if user not in rooms[code]:
         rooms[code].append(user)
-        
-        print(f"\n[Current connections] {len(rooms[code])}")
-        print(f"[Current users] {rooms[code]}\n")
-
-    print(f"\n[Message received] {json}\n")
 
     if "data" in json:
         if json["user"] == "adm":
@@ -587,29 +649,17 @@ def handle_my_custom_event(json):
         socketio.emit("online now", str(len(rooms[code])))
 
 
-# method for socket disconnection
 @socketio.on("disconnection")
 def handle_disconnection(json):
-	global rooms
-	user, code = json["user"], json["room"]
-	rooms[code].remove(user)
+    global rooms
+    user, code = json["user"], json["room"]
+    if code in rooms and user in rooms[code]:
+        rooms[code].remove(user)
 
-	print("\n[User disconnected]\n")
-
-	if check_empty(rooms, code):
-		rooms.pop(code)
-	else:
-		print(f"\n[Current connections] {len(rooms[code])}")
-		print(f"[Current users] {rooms[code]}\n")
-		print("AHAHAHH")
-
-		socketio.emit("online now", str(len(rooms[code])))
-
-users_db = {
-    'enzonsei@gmail.com': {
-        'password': 'senha123'
-    }
-}
+    if code in rooms and check_empty(rooms, code):
+        rooms.pop(code)
+    elif code in rooms:
+        socketio.emit("online now", str(len(rooms[code])))
 
 @app.route('/esqueceu-senha', methods=['GET', 'POST'])
 def forgot_password():
@@ -617,7 +667,6 @@ def forgot_password():
         email = request.form.get('email')
         
         email_usuarios = get_emails()
-        print(email_usuarios)
         if email in email_usuarios:
             # Gera token com validade de 1 hora
             token = serializer.dumps(email, salt='recover-key')
@@ -657,8 +706,8 @@ def forgot_password():
 @app.route('/redefinir-senha/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     try:
-        # Verifica se o token é válido e não expirou (3600 segundos = 1 hora)
-        email = serializer.loads(token, salt='recover-key', max_age=3600)
+        # Verifica se o token é válido e não expirou
+        email = serializer.loads(token, salt='recover-key', max_age=TOKEN_EXPIRY_SECONDS)
     except:
         flash('O link de recuperação é inválido ou expirou.', 'error')
         return redirect('/esqueceu-senha')
@@ -671,8 +720,9 @@ def reset_password(token):
             flash('As senhas não coincidem.', 'error')
             return render_template('reset_password.html')
         
-
-        cursor.execute("UPDATE usuarios SET senha = %s WHERE email = %s", (password, email))
+        # Hash the new password before storing
+        password_hash = generate_password_hash(password)
+        cursor.execute("UPDATE usuarios SET senha = %s WHERE email = %s", (password_hash, email))
         conn.commit()
         
         flash('Sua senha foi atualizada com sucesso!', 'success')
@@ -691,5 +741,6 @@ def navbar_info():
 
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    socketio.run(app, host='0.0.0.0', port=port, debug=True)
+    port = int(os.environ.get("PORT", DEFAULT_PORT))
+    debug_mode = os.environ.get('FLASK_ENV') == 'development'
+    socketio.run(app, host='0.0.0.0', port=port, debug=debug_mode)

@@ -11,7 +11,18 @@ Estão sujeitas a alterações conforme necessidade do projeto.
 3. Crie um ambiente virtual para desenvolvimento. Use o seguinte comando no terminal dentro da pasta do projeto: ``py -m venv nome_da_pasta_venv``
 4. Após a criação do ambiente virtual, ative-o utilizando o script apropriado para seu terminal. E.g: no powershell escreva: ``./nome_da_pasta_venv/Scripts/Activate.ps1``
 5. Com o ambiente ativado, execute o seguinte comando para instalar as dependências do projeto: ``pip install -r ./requirements.txt``
-6. O projeto está pronto para ser rodado :)
+6. **IMPORTANTE**: Configure as variáveis de ambiente copiando `.env.example` para `.env` e preenchendo os valores corretos:
+   ```bash
+   cp .env.example .env
+   # Edite o arquivo .env com suas configurações
+   ```
+7. O projeto está pronto para ser rodado :)
+
+## Configuração de Segurança
+- ✅ Senhas são armazenadas com hash seguro
+- ✅ Credenciais sensíveis em variáveis de ambiente
+- ✅ Validação de entrada implementada
+- ✅ Tratamento de erros melhorado
 
 # Contribute
 O código atual contempla apenas as operações CRUD do usuário e suas rotas. Os modelos para as classes identificadas

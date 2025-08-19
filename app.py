@@ -50,47 +50,66 @@ class Usuario(UserMixin):
 
 @login_manager.user_loader
 def load_user(id_usuario):
-    cursor.execute("SELECT id, nome, email, senha, role, telefone, escola FROM usuarios WHERE id = %s", (id_usuario,))
-    dados_usuario = cursor.fetchone()
-    if dados_usuario:
-        return Usuario(id=dados_usuario[0], 
-                      nome=dados_usuario[1], 
-                      email=dados_usuario[2], 
-                      senha=dados_usuario[3],
-                      role=dados_usuario[4],
-                      telefone=dados_usuario[5],
-                      escola=dados_usuario[6])
+    try:
+        cursor.execute("SELECT id, nome, email, senha, role, telefone, escola FROM usuarios WHERE id = %s", (id_usuario,))
+        dados_usuario = cursor.fetchone()
+        if dados_usuario:
+            return Usuario(id=dados_usuario[0], 
+                          nome=dados_usuario[1], 
+                          email=dados_usuario[2], 
+                          senha=dados_usuario[3],
+                          role=dados_usuario[4],
+                          telefone=dados_usuario[5],
+                          escola=dados_usuario[6])
+    except Exception as e:
+        # Log error in production
+        pass
     return None
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        nome = request.form['nome']
-        email = request.form['email']
-        telefone = request.form['telefone']
-        escola = request.form['escola']
-        senha = request.form['senha']
-        senha2 = request.form['confirmeSenha']
+        nome = request.form.get('nome', '').strip()
+        email = request.form.get('email', '').strip()
+        telefone = request.form.get('telefone', '').strip()
+        escola = request.form.get('escola', '').strip()
+        senha = request.form.get('senha', '')
+        senha2 = request.form.get('confirmeSenha', '')
         role = 'user'
+
+        # Basic validation
+        if not all([nome, email, telefone, escola, senha, senha2]):
+            return jsonify({"message": "Todos os campos são obrigatórios"}), 400
+        
+        if len(senha) < 6:
+            return jsonify({"message": "Senha deve ter pelo menos 6 caracteres"}), 400
 
         if senha == senha2:
             # Hash the password before storing
             senha_hash = generate_password_hash(senha)
-            inserir_query = "INSERT INTO usuarios (nome, email, senha, telefone, escola,role) VALUES (%s, %s, %s, %s, %s,%s)"
-            cursor.execute(inserir_query, (nome, email, senha_hash, telefone, escola, role))
-            conn.commit()
-            return redirect('/login')
+            try:
+                inserir_query = "INSERT INTO usuarios (nome, email, senha, telefone, escola,role) VALUES (%s, %s, %s, %s, %s,%s)"
+                cursor.execute(inserir_query, (nome, email, senha_hash, telefone, escola, role))
+                conn.commit()
+                return redirect('/login')
+            except Exception as e:
+                return jsonify({"message": "Erro ao criar usuário. Email pode já estar em uso."}), 400
         else:
-            return jsonify({"message":"Credenciais invalidas"}), 400
+            return jsonify({"message": "Senhas não coincidem"}), 400
     else:
         return render_template('cadastro.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email = request.form['email']
-        senha = request.form['senha']
-        if email and senha:
+        email = request.form.get('email', '').strip()
+        senha = request.form.get('senha', '')
+        
+        if not email or not senha:
+            flash('Email e senha são obrigatórios', 'error')
+            return redirect(url_for('login'))
+            
+        try:
             cursor.execute("SELECT id, nome, email, senha, role, telefone, escola FROM usuarios WHERE email = %s", (email,))
             dados_usuario = cursor.fetchone()
 
@@ -107,8 +126,9 @@ def login():
             else:
                 flash('Credenciais inválidas', 'error')
                 return redirect(url_for('login'))
-        flash('Campos incompletos', 'error')
-        return redirect(url_for('login'))
+        except Exception as e:
+            flash('Erro interno do sistema. Tente novamente.', 'error')
+            return redirect(url_for('login'))
     else:
         return render_template('login.html')
 
@@ -124,29 +144,40 @@ def logout():
 def altera_usuario():
     user = {"role": current_user.role}
     if request.method == 'POST':
-        nome = request.form['nome']
-        senha_antiga = request.form['senhaAntiga']  
-        email_novo = request.form['email']
-        senha_nova = request.form['novaSenha']
+        nome = request.form.get('nome', '').strip()
+        senha_antiga = request.form.get('senhaAntiga', '')
+        email_novo = request.form.get('email', '').strip()
+        senha_nova = request.form.get('novaSenha', '')
 
-        email = current_user.email
-        cursor.execute("SELECT senha FROM usuarios WHERE email = %s", (email,))
-        senha_hash = cursor.fetchone()
+        # Basic validation
+        if not all([nome, senha_antiga, email_novo, senha_nova]):
+            return jsonify({"message": "Todos os campos são obrigatórios"}), 400
+            
+        if len(senha_nova) < 6:
+            return jsonify({"message": "Nova senha deve ter pelo menos 6 caracteres"}), 400
 
-        if senha_hash and check_password_hash(senha_hash[0], senha_antiga):
-            nova_senha_hash = generate_password_hash(senha_nova)
-            cursor.execute("UPDATE usuarios SET nome = %s, email = %s, senha = %s WHERE email = %s", (nome, email_novo, nova_senha_hash, email))
-            conn.commit()
-            return jsonify({"message": "Alterações salvas com sucesso!"}), 200
-        else:
-            return jsonify({"message": "Senha antiga incorreta"}), 400
+        try:
+            email = current_user.email
+            cursor.execute("SELECT senha FROM usuarios WHERE email = %s", (email,))
+            senha_hash = cursor.fetchone()
+
+            if senha_hash and check_password_hash(senha_hash[0], senha_antiga):
+                nova_senha_hash = generate_password_hash(senha_nova)
+                cursor.execute("UPDATE usuarios SET nome = %s, email = %s, senha = %s WHERE email = %s", 
+                             (nome, email_novo, nova_senha_hash, email))
+                conn.commit()
+                return jsonify({"message": "Alterações salvas com sucesso!"}), 200
+            else:
+                return jsonify({"message": "Senha antiga incorreta"}), 400
+        except Exception as e:
+            return jsonify({"message": "Erro ao atualizar usuário"}), 500
     else:
         usuario = {
             'id': current_user.id,
             'email': current_user.email,
             'nome': current_user.nome,
-            'telefone': '99999-9999',
-            'escola': 'Escola XYZ',
+            'telefone': current_user.telefone or '99999-9999',
+            'escola': current_user.escola or 'Escola XYZ',
             'role': current_user.role
         }
         return render_template('altera_usuario.html', usuario=usuario, user=user)
@@ -155,15 +186,23 @@ def altera_usuario():
 @login_required
 def deleta_usuario():
     if request.method == 'POST':
-        email = request.form['email']
+        email = request.form.get('email', '').strip()
 
-        if email:
+        if not email:
+            return jsonify({"message": "Email é obrigatório"}), 400
+            
+        # Prevent users from deleting themselves accidentally
+        if email == current_user.email:
+            return jsonify({"message": "Você não pode deletar sua própria conta desta forma"}), 400
+
+        try:
             cursor.execute("DELETE FROM usuarios WHERE email = %s", (email,))
+            if cursor.rowcount == 0:
+                return jsonify({"message": "Usuário não encontrado"}), 404
             conn.commit()
-
             return render_template('deleta_usuario.html')    
-        else:
-            return jsonify({"message": "Campos incompletos"}), 400
+        except Exception as e:
+            return jsonify({"message": "Erro ao deletar usuário"}), 500
     else:
         return render_template('deleta_usuario.html') 
 
@@ -173,31 +212,46 @@ def deleta_usuario():
 def cadastra_produto():
     user = {"role": current_user.role}
     if request.method == 'POST':
-        nome = request.form['nome']
-        descricao = request.form['descricao']
-        preco = request.form['preco']
-        quantidade = request.form['quantidade']
+        nome = request.form.get('nome', '').strip()
+        descricao = request.form.get('descricao', '').strip()
+        preco = request.form.get('preco')
+        quantidade = request.form.get('quantidade')
         imagem = request.files.get('imagem')
-        if imagem:
+        
+        # Basic validation
+        if not all([nome, descricao, preco]):
+            return jsonify({"message": "Nome, descrição e preço são obrigatórios"}), 400
+            
+        try:
+            preco_float = float(preco)
+            quantidade_int = int(quantidade) if quantidade else 0
+            
+            if preco_float <= 0:
+                return jsonify({"message": "Preço deve ser maior que zero"}), 400
+            if quantidade_int < 0:
+                return jsonify({"message": "Quantidade não pode ser negativa"}), 400
+                
+        except (ValueError, TypeError):
+            return jsonify({"message": "Preço e quantidade devem ser números válidos"}), 400
+        
+        imagem_path = None
+        if imagem and imagem.filename:
             # Create directory if it doesn't exist
-            import os
             upload_folder = os.path.join('static', 'imagens')
             os.makedirs(upload_folder, exist_ok=True)
             
             # Save file to the directory
             filename = os.path.join(upload_folder, imagem.filename)
             imagem.save(filename)
-            imagem = f'static/imagens/{imagem.filename}'
-        else:
-            imagem = None
+            imagem_path = f'static/imagens/{imagem.filename}'
 
-        if nome and descricao and preco: 
-            cursor.execute("INSERT INTO produtos (nome, valor, descricao, quantidade, imagem) VALUES (%s, %s, %s, %s, %s)",(nome, preco, descricao, quantidade, imagem))
+        try:
+            cursor.execute("INSERT INTO produtos (nome, valor, descricao, quantidade, imagem) VALUES (%s, %s, %s, %s, %s)",
+                         (nome, preco_float, descricao, quantidade_int, imagem_path))
             conn.commit()
-
             return redirect('/menu')
-        else:
-            return jsonify({"message": "Campos incompletos"}), 400
+        except Exception as e:
+            return jsonify({"message": "Erro ao cadastrar produto"}), 500
     return render_template('cadastra_produto.html', user=user)
 
 
@@ -335,37 +389,53 @@ def lista_requisicoes():
 @app.route('/menu', methods=['GET', 'POST'])
 @login_required
 def menu():
-    cursor.execute("SELECT * FROM produtos")
-    produtos_db = cursor.fetchall()
-    
-    produtos = []
+    try:
+        cursor.execute("SELECT * FROM produtos")
+        produtos_db = cursor.fetchall()
+        
+        produtos = []
+        for item in produtos_db:
+            produtos.append({
+                "id": item[0],
+                "nome": item[1].capitalize() if item[1] else "",
+                "preco": item[2] if item[2] else 0,
+                "descricao": str(item[3]) if item[3] else "",
+                "quantidade": int(item[4]) if item[4] else 0,
+                "imagem": item[5] if item[5] else "/static/png-logo-black.png"
+            })
 
-    for i, item in enumerate(produtos_db, start=1):
-        produtos.append({
-            "id": item[0],
-            "nome": item[1].capitalize(),
-            "preco": item[2],
-            "descricao": str(item[3]),
-            "quantidade": int(item[4]),
-            "imagem": item[5]
-        })
+        user = {"role": current_user.role}
+        notificacoes_ativas = get_notificacoes(current_user.id)    
 
-    user={"role":current_user.role}
-    notificacoes_ativas = get_notificacoes(current_user.id)    
-
-    return render_template('menu.html', produtos=produtos, user=user, notificacoes_ativas=notificacoes_ativas)
+        return render_template('menu.html', produtos=produtos, user=user, notificacoes_ativas=notificacoes_ativas)
+    except Exception as e:
+        # In production, log this error
+        flash('Erro ao carregar produtos', 'error')
+        return render_template('menu.html', produtos=[], user={"role": current_user.role}, notificacoes_ativas=[])
 
 @app.route('/requisitar/<int:numero>/<int:qnt>', methods=['GET', 'POST'])
 @login_required
 def requistitar(numero, qnt):
-    cursor.execute("SELECT quantidade FROM produtos WHERE id = %s", (numero,))
-    quantidade = cursor.fetchone()[0]
-    if quantidade >= qnt:
-        cursor.execute("UPDATE produtos SET quantidade = %s WHERE id = %s", (quantidade - qnt, numero))
-        conn.commit()
-        return redirect('/menu')
-    else:
-        return jsonify({"message": "Quantidade indisponível"}), 400
+    if qnt <= 0:
+        return jsonify({"message": "Quantidade deve ser maior que zero"}), 400
+    
+    try:
+        cursor.execute("SELECT quantidade FROM produtos WHERE id = %s", (numero,))
+        result = cursor.fetchone()
+        
+        if not result:
+            return jsonify({"message": "Produto não encontrado"}), 404
+            
+        quantidade_disponivel = result[0]
+        if quantidade_disponivel >= qnt:
+            cursor.execute("UPDATE produtos SET quantidade = %s WHERE id = %s", 
+                         (quantidade_disponivel - qnt, numero))
+            conn.commit()
+            return redirect('/menu')
+        else:
+            return jsonify({"message": f"Quantidade indisponível. Disponível: {quantidade_disponivel}"}), 400
+    except Exception as e:
+        return jsonify({"message": "Erro ao processar requisição"}), 500
 
 @app.route('/contato', methods=['GET', 'POST'])
 @login_required
@@ -658,4 +728,5 @@ def navbar_info():
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
-    socketio.run(app, host='0.0.0.0', port=port, debug=True)
+    debug_mode = os.environ.get('FLASK_ENV') == 'development'
+    socketio.run(app, host='0.0.0.0', port=port, debug=debug_mode)

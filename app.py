@@ -6,11 +6,13 @@ from flask import Flask, abort, flash, g, request, render_template, redirect, js
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 from psycopg2 import sql
 from flask_socketio import SocketIO, send, emit
+from werkzeug.security import generate_password_hash, check_password_hash
 from db import cursor, conn
 from utils.bd_functions import get_emails, get_notificacoes, get_produtos, get_vendas
 from utils.pdf_generator import create_sales_report_pdf
 from components.database import DataBase
 from components.utilities import *
+from config import config
 
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer
@@ -22,12 +24,8 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '@teste22@.22'
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'cakesbigusta@gmail.com'  # Seu email
-app.config['MAIL_PASSWORD'] = 'nzep gpkv jgii wygq'
+config_name = os.environ.get('FLASK_ENV') or 'default'
+app.config.from_object(config[config_name])
 
 mail = Mail(app)
 serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
@@ -54,7 +52,6 @@ class Usuario(UserMixin):
 def load_user(id_usuario):
     cursor.execute("SELECT id, nome, email, senha, role, telefone, escola FROM usuarios WHERE id = %s", (id_usuario,))
     dados_usuario = cursor.fetchone()
-    print(dados_usuario)
     if dados_usuario:
         return Usuario(id=dados_usuario[0], 
                       nome=dados_usuario[1], 
@@ -77,8 +74,10 @@ def index():
         role = 'user'
 
         if senha == senha2:
+            # Hash the password before storing
+            senha_hash = generate_password_hash(senha)
             inserir_query = "INSERT INTO usuarios (nome, email, senha, telefone, escola,role) VALUES (%s, %s, %s, %s, %s,%s)"
-            cursor.execute(inserir_query, (nome, email, senha, telefone, escola, role))
+            cursor.execute(inserir_query, (nome, email, senha_hash, telefone, escola, role))
             conn.commit()
             return redirect('/login')
         else:
@@ -86,7 +85,6 @@ def index():
     else:
         return render_template('cadastro.html')
 
- 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -95,11 +93,9 @@ def login():
         if email and senha:
             cursor.execute("SELECT id, nome, email, senha, role, telefone, escola FROM usuarios WHERE email = %s", (email,))
             dados_usuario = cursor.fetchone()
-            print(dados_usuario, dados_usuario[3], senha)
 
-            if dados_usuario and dados_usuario[3] == senha:  # Substituir por hashing seguro posteriormente
-                print("passou")
-                user =  Usuario(id=dados_usuario[0], 
+            if dados_usuario and check_password_hash(dados_usuario[3], senha):
+                user = Usuario(id=dados_usuario[0], 
                       nome=dados_usuario[1], 
                       email=dados_usuario[2],
                       senha=dados_usuario[3],
@@ -109,9 +105,9 @@ def login():
                 login_user(user)
                 return redirect(url_for('menu'))
             else:
-                print('Credenciais inválidas')
+                flash('Credenciais inválidas', 'error')
                 return redirect(url_for('login'))
-        print('Campos incompletos')
+        flash('Campos incompletos', 'error')
         return redirect(url_for('login'))
     else:
         return render_template('login.html')
@@ -135,10 +131,11 @@ def altera_usuario():
 
         email = current_user.email
         cursor.execute("SELECT senha FROM usuarios WHERE email = %s", (email,))
-        senha = cursor.fetchone()
+        senha_hash = cursor.fetchone()
 
-        if senha_antiga == senha[0]: 
-            cursor.execute("UPDATE usuarios SET nome = %s, email = %s, senha = %s WHERE email = %s", (nome, email_novo, senha_nova, email))
+        if senha_hash and check_password_hash(senha_hash[0], senha_antiga):
+            nova_senha_hash = generate_password_hash(senha_nova)
+            cursor.execute("UPDATE usuarios SET nome = %s, email = %s, senha = %s WHERE email = %s", (nome, email_novo, nova_senha_hash, email))
             conn.commit()
             return jsonify({"message": "Alterações salvas com sucesso!"}), 200
         else:
@@ -242,10 +239,9 @@ def editar_produto(id):
             "nome": produto_db[1],
             "descricao": str(produto_db[3]),
             "preco": produto_db[2],
-            "quantidade": int(produto_db[0]),
-            "imagem": "/static/png-logo-black.png"
+            "quantidade": int(produto_db[4]),
+            "imagem": produto_db[5] if produto_db[5] else "/static/png-logo-black.png"
         }
-        print(produto)
         return render_template('editar_produto.html', produto=produto, user=user)
 
 @app.route('/excluir_produto/<int:id>', methods=['GET', 'POST'])
@@ -277,7 +273,6 @@ def notificacoes():
     if request.method == 'POST':
         mensagem = request.form['mensagem']
         tipo = request.form['tipo']
-        print(mensagem, tipo)
         if mensagem:
             if tipo == "cliente":
                 cursor.execute('INSERT INTO notificacoes (texto, usuario) VALUES (%s, %s)', (mensagem, current_user.id))
@@ -438,11 +433,9 @@ def get_sales():
 @app.route('/generate-pdf', methods=['POST'])
 def generate_pdf():
     try:
-        print("entrou")
         data = request.json
         
         chart_image = base64.b64decode(data['chart_image'].split(",")[1])
-        print("ola")
         pdf = create_sales_report_pdf(
             chart_image_data=chart_image,
             start_date=data['start_date'],
@@ -510,18 +503,15 @@ def chat(code):
         return render_template("chat.html", code=code, messages=messages, age=age, count=count, user=user)
 
 
-# renders chat history page
 @app.route("/chat/<code>/history", methods=["GET", "POST"])
 def history(code):
     if code.startswith("adm-"):
         raw = db.get(code.split('-')[1])
     else:
         raw = db.get(code.split('-')[0])
-    print(raw)
-    print()
+    
     # Update to handle 4 columns: user, message, date, read
     messages = [(x[1], x[2], x[3]) for x in raw]
-    print(messages)
 
     if messages:
         messages.reverse()
@@ -537,8 +527,6 @@ def history(code):
 @app.route("/delete-account/<user>")
 def delete(user):
     global rooms
-    print(rooms)
-    print(user)
     for room in list(rooms.keys()):
         if user in rooms[room]:
             rooms.pop(room)
@@ -548,34 +536,24 @@ def delete(user):
 
 
 
-# method for socket broadcast
 @socketio.on("message")
 def handle_my_custom_event(json):
     global rooms
     user, code = json["user"], json["room"]
 
-    
     if user.startswith("adm-"):
         user = user.split('-')[1]
         json.update({"user": "adm"})
-
     else:
         user = user.split('-')[0]
         json.update({"user": user})
     
-    print("haha")
-    print(json)
     dnow = datetime.now()
 
     if code not in rooms:
         rooms[code] = []
     if user not in rooms[code]:
         rooms[code].append(user)
-        
-        print(f"\n[Current connections] {len(rooms[code])}")
-        print(f"[Current users] {rooms[code]}\n")
-
-    print(f"\n[Message received] {json}\n")
 
     if "data" in json:
         if json["user"] == "adm":
@@ -587,29 +565,17 @@ def handle_my_custom_event(json):
         socketio.emit("online now", str(len(rooms[code])))
 
 
-# method for socket disconnection
 @socketio.on("disconnection")
 def handle_disconnection(json):
-	global rooms
-	user, code = json["user"], json["room"]
-	rooms[code].remove(user)
+    global rooms
+    user, code = json["user"], json["room"]
+    if code in rooms and user in rooms[code]:
+        rooms[code].remove(user)
 
-	print("\n[User disconnected]\n")
-
-	if check_empty(rooms, code):
-		rooms.pop(code)
-	else:
-		print(f"\n[Current connections] {len(rooms[code])}")
-		print(f"[Current users] {rooms[code]}\n")
-		print("AHAHAHH")
-
-		socketio.emit("online now", str(len(rooms[code])))
-
-users_db = {
-    'enzonsei@gmail.com': {
-        'password': 'senha123'
-    }
-}
+    if code in rooms and check_empty(rooms, code):
+        rooms.pop(code)
+    elif code in rooms:
+        socketio.emit("online now", str(len(rooms[code])))
 
 @app.route('/esqueceu-senha', methods=['GET', 'POST'])
 def forgot_password():
@@ -617,7 +583,6 @@ def forgot_password():
         email = request.form.get('email')
         
         email_usuarios = get_emails()
-        print(email_usuarios)
         if email in email_usuarios:
             # Gera token com validade de 1 hora
             token = serializer.dumps(email, salt='recover-key')
@@ -671,8 +636,9 @@ def reset_password(token):
             flash('As senhas não coincidem.', 'error')
             return render_template('reset_password.html')
         
-
-        cursor.execute("UPDATE usuarios SET senha = %s WHERE email = %s", (password, email))
+        # Hash the new password before storing
+        password_hash = generate_password_hash(password)
+        cursor.execute("UPDATE usuarios SET senha = %s WHERE email = %s", (password_hash, email))
         conn.commit()
         
         flash('Sua senha foi atualizada com sucesso!', 'success')

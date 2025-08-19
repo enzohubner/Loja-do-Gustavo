@@ -1,5 +1,9 @@
 import re
 
+# Constants
+MIN_PASSWORD_LENGTH = 6
+MAX_PASSWORD_LENGTH = 128
+
 
 def validate_email(email):
     """Validate email format."""
@@ -9,11 +13,11 @@ def validate_email(email):
 
 def validate_password_strength(password):
     """Check if password meets minimum requirements."""
-    if len(password) < 6:
-        return False, "Senha deve ter pelo menos 6 caracteres"
+    if len(password) < MIN_PASSWORD_LENGTH:
+        return False, f"Senha deve ter pelo menos {MIN_PASSWORD_LENGTH} caracteres"
     
-    if len(password) > 128:  # Prevent extremely long passwords
-        return False, "Senha não pode exceder 128 caracteres"
+    if len(password) > MAX_PASSWORD_LENGTH:  # Prevent extremely long passwords
+        return False, f"Senha não pode exceder {MAX_PASSWORD_LENGTH} caracteres"
     
     return True, "Senha válida"
 

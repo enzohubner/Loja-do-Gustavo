@@ -1,27 +1,41 @@
 import base64
-from datetime import datetime, timedelta
 import io
 import os
+from datetime import datetime, timedelta
+
+# Flask imports
 from flask import Flask, abort, flash, g, request, render_template, redirect, jsonify, send_file, url_for
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
-from psycopg2 import sql
-from flask_socketio import SocketIO, send, emit
-from werkzeug.security import generate_password_hash, check_password_hash
-from db import cursor, conn
-from utils.bd_functions import get_emails, get_notificacoes, get_produtos, get_vendas
-from utils.pdf_generator import create_sales_report_pdf
-from components.database import DataBase
-from components.utilities import *
-from config import config
-
 from flask_mail import Mail, Message
+from flask_socketio import SocketIO, send, emit
+
+# Security imports
+from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer
 
+# Database imports
+from psycopg2 import sql
+
+# PDF generation imports
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter, landscape
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
+
+# Local imports
+from config import config
+from db import cursor, conn
+from utils.bd_functions import get_emails, get_notificacoes, get_produtos, get_vendas
+from utils.pdf_generator import create_sales_report_pdf
+from components.database import DataBase
+from components.utilities import *
+
+# Constants
+MIN_PASSWORD_LENGTH = 6
+MAX_PASSWORD_LENGTH = 128
+TOKEN_EXPIRY_SECONDS = 3600  # 1 hour
+DEFAULT_PORT = 5000
 
 app = Flask(__name__)
 config_name = os.environ.get('FLASK_ENV') or 'default'
@@ -81,8 +95,8 @@ def index():
         if not all([nome, email, telefone, escola, senha, senha2]):
             return jsonify({"message": "Todos os campos são obrigatórios"}), 400
         
-        if len(senha) < 6:
-            return jsonify({"message": "Senha deve ter pelo menos 6 caracteres"}), 400
+        if len(senha) < MIN_PASSWORD_LENGTH:
+            return jsonify({"message": f"Senha deve ter pelo menos {MIN_PASSWORD_LENGTH} caracteres"}), 400
 
         if senha == senha2:
             # Hash the password before storing
@@ -153,8 +167,8 @@ def altera_usuario():
         if not all([nome, senha_antiga, email_novo, senha_nova]):
             return jsonify({"message": "Todos os campos são obrigatórios"}), 400
             
-        if len(senha_nova) < 6:
-            return jsonify({"message": "Nova senha deve ter pelo menos 6 caracteres"}), 400
+        if len(senha_nova) < MIN_PASSWORD_LENGTH:
+            return jsonify({"message": f"Nova senha deve ter pelo menos {MIN_PASSWORD_LENGTH} caracteres"}), 400
 
         try:
             email = current_user.email
@@ -692,8 +706,8 @@ def forgot_password():
 @app.route('/redefinir-senha/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     try:
-        # Verifica se o token é válido e não expirou (3600 segundos = 1 hora)
-        email = serializer.loads(token, salt='recover-key', max_age=3600)
+        # Verifica se o token é válido e não expirou
+        email = serializer.loads(token, salt='recover-key', max_age=TOKEN_EXPIRY_SECONDS)
     except:
         flash('O link de recuperação é inválido ou expirou.', 'error')
         return redirect('/esqueceu-senha')
@@ -727,6 +741,6 @@ def navbar_info():
 
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", DEFAULT_PORT))
     debug_mode = os.environ.get('FLASK_ENV') == 'development'
     socketio.run(app, host='0.0.0.0', port=port, debug=debug_mode)
